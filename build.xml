@@ -1,0 +1,879 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<project name="cbx-release" default="single-run" basedir=".">
+    <taskdef resource="net/sf/antcontrib/antlib.xml" classpath="ant-lib/ant-contrib-1.0b3.jar"/>
+    <property file="settings/generator.properties"/>
+
+    <property name="jar-name" value="cbx-biz"/>
+    <property name="build-ver" value="5.0.059.0"/>
+
+    <property name="builder-used" value="cbx-builder-5.0.007.0"/>
+    <property name="common-used" value="cbx-common-5.0.003.0"/>
+    <property name="ui-used" value="cbx-ui-5.0.007.0"/>
+    <property name="core-used" value="cbx-core-5.0.007.0"/>
+
+    <property name="release"  value="${basedir}/release"/>
+    <property name="release.previous" value="RELEASE_5_0_035_0_PRE_RELEASE"/>
+    <property name="release.current" value="RELEASE_5_0_036_0_PRE_RELEASE"/>
+    <property name="release.difflist" value="${release}/updated-excel.txt"/>
+    <property name="cvs.root" value=":pserver:sunny.feng@cvs.coresolutions.com:/CBXEnterprise"/>
+
+    <property name="lib.dir" value="${basedir}/lib"/>
+    <property name="output.dir"  value="${basedir}/output"/>
+    <property name="include.dir"  value="${basedir}/include"/>
+    <property name="working.dir"  value="${basedir}/working"/>
+    <property name="conf.dir"  value="${basedir}/conf"/>
+    <property name="excel.export.dir" value="${basedir}/excel_export"/>
+    <property name="properties-file"  value="builder.properties"/>
+    <property name="main-class"  value="com.core.cbx.generator.Main"/>
+    <property name="default-target"  value="entity,form,popup,dataMappingRule,dataInheritanceProfile,security"/>  <!-- entity,form,popup,dataMappingRule,dataInheritanceProfile,security -->
+
+    <!--module: e.g.: cust, vendor, fact, rfq, vq, cpo, vpo offersheet, brief, item, spec, user, role, group, domain-->
+    <!--The active target generator, options (per module): entity,form,popup,dataMappingRule,dataInheritanceProfile,security-->
+    <!--The active target generator, options (per system): system,searchView,popup-->
+    <!--Multiple generators can be started up by contacting by comma.-->
+    <!--if target type is per system, the module type is irrelevant-->
+
+    <macrodef name="debug_echo">
+        <attribute name="msg"/>
+        <sequential>
+            <echo message="@{msg}"/>
+        </sequential>
+    </macrodef>
+
+    <path id="project.class.path">
+        <fileset dir="${lib.dir}" includes="**/*.jar"/>
+    </path>
+
+    <target name="clean">
+        <delete includeemptydirs="false">
+            <fileset dir="${output.dir}" includes="**/*"/>
+        </delete>
+        <delete includeemptydirs="false">
+            <fileset dir="${working.dir}" includes="**/*"/>
+        </delete>
+    </target>
+
+    <target name="-clean-inher">
+        <delete file="${output.dir}/scripts/DML_DATA_INHERITANCE_PROFILE.sql"/>
+        <delete file="${output.dir}/scripts/DML_DATA_MAPPING_RULE.sql"/>
+        <delete>
+            <fileset dir="${output.dir}/scripts" includes="/*_DML_DATA_INHERITANCE_PROFILE.sql"/>
+        </delete>
+        <delete>
+            <fileset dir="${output.dir}/scripts" includes="/*_DML_DATA_MAPPING_RULE.sql"/>
+        </delete>
+    </target>
+
+    <target name="-init-install">
+        <debug_echo msg="URL: [${gen.install.url}]"/>
+        <property name="gen.db.user" value="${gen.install.user}"/>
+        <property name="gen.db.pwd"  value="${gen.install.pwd}"/>
+        <property name="gen.db.url"  value="${gen.install.url}"/>
+    </target>
+
+    <target name="-init-update">
+        <property name="gen.db.user" value="${gen.update.user}"/>
+        <property name="gen.db.pwd"  value="${gen.update.pwd}"/>
+        <property name="gen.db.url"  value="${gen.update.url}"/>
+    </target>
+
+    <target name="-init-single">
+        <property name="gen.db.user" value="${gen.single.user}"/>
+        <property name="gen.db.pwd"  value="${gen.single.pwd}"/>
+        <property name="gen.db.url"  value="${gen.single.url}"/>
+    </target>
+
+    <target name="-genForm">
+        <debug_echo msg="Module: [${module}]"/>
+        <debug_echo msg="Target: [${target}]"/>
+        <debug_echo msg="Desc: [${desc}]"/>
+        <debug_echo msg="gen.db.user: [${gen.db.user}]"/>
+        <debug_echo msg="gen.db.pwd: [${gen.db.pwd}]"/>
+        <debug_echo msg="gen.db.url: [${gen.db.url}]"/>
+        <debug_echo msg="gen.target.path: [${gen.target.path}]"/>
+
+        <!-- delete existing builder.properties file -->
+        <delete file="${properties-file}"/>
+
+        <!-- create builder.properties for cbx-builder -->
+        <propertyfile file="builder.properties"
+                      comment="AUTO GENERATED. To amend, please edit settings/generator.properties" >
+            <entry key="mode" value="${gen.mode}"/>
+            <entry key="module" value="${module}"/>
+            <entry key="target" value="${target}"/>
+            <entry key="reporting.domainId" value="${gen.reporting.domainId}"/>
+            <entry key="reporting.module" value="${gen.reporting.module}"/>
+            <entry key="reporting.dbType" value="${gen.reporting.dbType}"/>
+            <entry key="target.path" value="${gen.target.path}"/>
+            <entry key="template.path" value="${gen.template.path}"/>
+            <entry key="linguals" value="${gen.linguals}"/>
+            <entry key="resource.ds1.domainId" value="${gen.domainId}"/>
+            <entry key="resource.ds1.resourceName" value="${gen.db.resourceName}"/>
+            <entry key="resource.ds1.xaDataSourceClassName" value="${gen.db.xaDataSourceClassName}"/>
+            <entry key="resource.ds1.maxPoolSize" value="${gen.db.maxPoolSize}"/>
+            <entry key="resource.ds1.xaProperties.user" value="${gen.db.user}"/>
+            <entry key="resource.ds1.xaProperties.password" value="${gen.db.pwd}"/>
+            <entry key="resource.ds1.xaProperties.URL" value="${gen.db.url}"/>
+        </propertyfile>
+
+        <java classname="${main-class}" fork="true" maxmemory="512m">
+            <sysproperty key="system.disableDistributedCache" value="true"/>
+            <classpath refid="project.class.path"/>
+        </java>
+    </target>
+
+    <target name="-genSystem">
+        <!-- reuse genForm task -->
+        <antcall target="-genForm">
+            <param name="module" value=""/>
+            <param name="desc" value="${desc}"/>
+            <param name="target" value="${target}"/>  <!-- system, searchView, popuup, dataMappingRule -->
+        </antcall>
+    </target>
+
+    <target name="-gen-system">
+        <debug_echo msg="build-ver = ${build-ver}" />
+        <debug_echo msg="lib.dir = ${lib.dir}" />
+        <debug_echo msg="output.dir = ${output.dir}" />
+        <debug_echo msg="main-class = ${main-class}" />
+
+        <antcall target="-genSystem">
+            <param name="desc" value="Generate System."/>
+            <param name="target" value="system"/>
+        </antcall>
+    </target>
+
+    <target name="-gen-search">
+        <debug_echo msg="build-ver = ${build-ver}" />
+        <debug_echo msg="lib.dir = ${lib.dir}" />
+        <debug_echo msg="output.dir = ${output.dir}" />
+        <debug_echo msg="main-class = ${main-class}" />
+
+        <antcall target="-genSystem">
+            <param name="desc" value="Generate Search View."/>
+            <param name="target" value="searchView"/>
+        </antcall>
+    </target>
+
+    <target name="-gen-popup">
+        <debug_echo msg="build-ver = ${build-ver}" />
+        <debug_echo msg="lib.dir = ${lib.dir}" />
+        <debug_echo msg="output.dir = ${output.dir}" />
+        <debug_echo msg="main-class = ${main-class}" />
+
+        <antcall target="-genSystem">
+            <param name="desc" value="Generate Popup."/>
+            <param name="target" value="popup"/>
+        </antcall>
+    </target>
+
+    <target name="gen-label" description="Generate the Label SQL">
+        <if>
+            <not>
+                <isset property="cmdline.domainId"/>
+            </not>
+            <then>
+                <property name="cmdline.domainId" value="${gen.domainId}"/>
+            </then>
+        </if>
+        <delete file="${gen.target.path}/src/main/resources/labels/LABELS.tmp"/>
+        <concat destfile="${gen.target.path}/src/main/resources/labels/LABELS.tmp" force="yes" fixlastline="yes">
+            <fileset dir="${gen.target.path}/src/main/resources/labels/" includes="*.txt"/>
+        </concat>
+        <taskdef  name="genLabelSqlTask"
+            classname="com.core.cbx.generator.util.LabelSqlGenerator">
+            <classpath refid="project.class.path"/>
+        </taskdef>
+        <genLabelSqlTask
+            domainId="${cmdline.domainId}"
+            resourceFile="${gen.target.path}/src/main/resources/labels/LABELS.tmp"
+            startLine="1"
+            endLine="-1"
+            delimiter="\t"
+            overwrite="true"
+            targetFileName="${output.dir}/sql/label.sql"
+        />
+    </target>
+
+        <target name="gen-history" description="Generate the History Configuration SQL">
+        <fail message="Please specific a domain ID (not ROOT domain) to generate the SQL!">
+            <condition>
+                <not>
+                    <isset property="domainId"/>
+                    </not>
+                </condition>
+        </fail>
+        <taskdef  name="genHistorySqlTask"
+            classname="com.core.cbx.generator.util.HistoryDefSqlGenerator">
+            <classpath refid="project.class.path"/>
+        </taskdef>
+        <genHistorySqlTask
+            domainId="${domainId}"
+            resourceFile=""
+            startLine="1"
+            endLine="-1"
+            delimiter="\t"
+            overwrite="true"
+            targetFileName="${output.dir}/sql/${domainId}_history.sql"
+        />
+    </target>
+
+
+    <target name="release-install-genAllValidation" depends="-init-install">
+        <debug_echo msg="##### BEGIN of Modules(Validation) generation #####"/>
+        <!-- Entity -->
+        <antcall target="-gen-all-validation" />
+        <debug_echo msg="##### END of Modules(Validation) generation #####"/>
+
+        <debug_echo msg="${working.dir}/install/${jar-name}-${build-ver}-install-06-dml-gen-by-system-validation[created]"/>
+        <!-- #07 concat gen by system DML SQL -->
+        <concat destfile="${working.dir}/install/${jar-name}-${build-ver}-install-06-dml-gen-by-system-validation.sql" force="yes" fixlastline="yes">
+            <filelist dir="${include.dir}/"            files="sql_header.sql"/>
+            <fileset dir="${output.dir}/"      includes="*_validation.sql"/>
+            <filelist dir="${include.dir}/"            files="sql_commit.sql"/>
+        </concat>
+    </target>
+
+    <target name="concatAllValidationSql">
+        <debug_echo msg="${working.dir}/install/${jar-name}-${build-ver}-install-05-dml-gen-by-system-validation[created]"/>
+        <!-- #05 concat gen by system DML SQL -->
+        <concat destfile="${working.dir}/install/${jar-name}-${build-ver}-install-05-dml-gen-by-system-validation.sql" force="yes" fixlastline="yes">
+            <filelist dir="${include.dir}/"            files="sql_header.sql"/>
+            <fileset dir="${output.dir}/"      includes="*_validation.sql"/>
+            <filelist dir="${include.dir}/"            files="sql_commit.sql"/>
+        </concat>
+    </target>
+
+    <target name="-gen-all-validation" >
+        <debug_echo msg="build-ver = ${build-ver}" />
+        <debug_echo msg="lib.dir = ${lib.dir}" />
+        <debug_echo msg="output.dir = ${output.dir}" />
+        <debug_echo msg="main-class = ${main-class}" />
+
+        <debug_echo msg="##### BEGIN of Modules(validation) generation #####"/>
+
+        <for param="file">
+            <path>
+                <fileset dir="${basedir}/excel/validation" includes="*.xls*"/>
+            </path>
+            <sequential>
+                <propertyregex override="yes" property="moduleName" input="@{file}"
+                               regexp=".*[\\/]([^\\/]*)_validation\.xls."
+                               replace="\1" casesensitive="false"/>
+                <antcall target="-genForm">
+                    <param name="module" value="${moduleName}"/>
+                    <param name="desc" value="Generate validation - ${moduleName}"/>
+                    <param name="target" value="validation"/>
+                </antcall>
+            </sequential>
+        </for>
+        <debug_echo msg="##### END of Modules(validation) generation #####"/>
+    </target>
+
+    <target name="-gen-all" depends="clean">
+        <debug_echo msg="build-ver = ${build-ver}" />
+        <debug_echo msg="lib.dir = ${lib.dir}" />
+        <debug_echo msg="output.dir = ${output.dir}" />
+        <debug_echo msg="main-class = ${main-class}" />
+
+
+        <debug_echo msg="##### BEGIN of Modules(Entity) generation #####"/>
+        <!-- Entity -->
+        <antcall target="-gen-all-entity" />
+        <debug_echo msg="##### END of Modules(Entity) generation #####"/>
+
+        <debug_echo msg="######### BEGIN of Modules(form) generation ###########"/>
+        <!-- form -->
+        <antcall target="-gen-all-form" />
+        <debug_echo msg="##### END of Modules(form) generation #####"/>
+
+        <debug_echo msg="######### BEGIN of Modules(popup) generation ###########"/>
+        <!-- popup -->
+        <antcall target="-gen-all-popup" />
+        <debug_echo msg="##### END of Modules(popup) generation #####"/>
+
+        <debug_echo msg="######### BEGIN of Modules(searchView) generation ###########"/>
+        <!-- searchView -->
+        <antcall target="-gen-all-searchView" />
+        <debug_echo msg="##### END of Modules(searchView) generation #####"/>
+
+        <debug_echo msg="######### BEGIN of Modules(security) generation ###########"/>
+        <!-- security -->
+        <antcall target="-gen-all-security" />
+        <debug_echo msg="##### END of Modules(security) generation #####"/>
+
+        <debug_echo msg="######### BEGIN of Modules(DataMapping/Inheritance) generation ###########"/>
+        <!-- inheritance -->
+        <antcall target="-gen-all-inheritance" />
+        <debug_echo msg="##### END of Modules(DataMapping/Inheritance) generation #####"/>
+
+        <debug_echo msg="######### BEGIN of Common (System/Search View/Popup) generation ###########"/>
+        <!-- System -->
+        <antcall target="-gen-system" />
+        <debug_echo msg="######### END of Common (System/Search View/Popup) generation ###########"/>
+    </target>
+
+    <target name="-gen-all-inher" depends="-clean-inher">
+        <debug_echo msg="build-ver = ${build-ver}" />
+        <debug_echo msg="lib.dir = ${lib.dir}" />
+        <debug_echo msg="output.dir = ${output.dir}" />
+        <debug_echo msg="main-class = ${main-class}" />
+
+        <debug_echo msg="##### BEGIN of Modules(DataMapping/Inheritance) generation #####"/>
+
+        <for param="file">
+            <path>
+                <fileset dir="${basedir}/excel/inheritance" includes="*.xls*"/>
+            </path>
+            <sequential>
+                <propertyregex override="yes" property="moduleName" input="@{file}"
+                               regexp=".*[\\/]([^\\/]*)_dataInheritanceProfile\.xls."
+                               replace="\1" casesensitive="false"/>
+                <antcall target="-genForm">
+                    <param name="module" value="${moduleName}"/>
+                    <param name="desc" value="Generate inheritance data - ${moduleName}"/>
+                    <param name="target" value="dataMappingRule,dataInheritanceProfile"/>
+                </antcall>
+            </sequential>
+        </for>
+        <debug_echo msg="##### END of Modules(DataMapping/Inheritance) generation #####"/>
+    </target>
+
+    <target name="-gen-all-entity" >
+        <debug_echo msg="build-ver = ${build-ver}" />
+        <debug_echo msg="lib.dir = ${lib.dir}" />
+        <debug_echo msg="output.dir = ${output.dir}" />
+        <debug_echo msg="main-class = ${main-class}" />
+
+        <debug_echo msg="##### BEGIN of Modules(entity) generation #####"/>
+
+        <for param="file">
+            <path>
+                <fileset dir="${basedir}/excel/entity" includes="*.xls*"/>
+            </path>
+            <sequential>
+                <propertyregex override="yes" property="moduleName" input="@{file}"
+                               regexp=".*[\\/]([^\\/]*)_entity\.xls."
+                               replace="\1" casesensitive="false"/>
+                <antcall target="-genForm">
+                    <param name="module" value="${moduleName}"/>
+                    <param name="desc" value="Generate entity - ${moduleName}"/>
+                    <param name="target" value="entity"/>
+                </antcall>
+            </sequential>
+        </for>
+        <debug_echo msg="##### END of Modules(entity) generation #####"/>
+    </target>
+
+
+    <target name="-gen-all-form" >
+        <debug_echo msg="build-ver = ${build-ver}" />
+        <debug_echo msg="lib.dir = ${lib.dir}" />
+        <debug_echo msg="output.dir = ${output.dir}" />
+        <debug_echo msg="main-class = ${main-class}" />
+
+        <debug_echo msg="##### BEGIN of Modules(form) generation #####"/>
+
+        <for param="file">
+            <path>
+                <fileset dir="${basedir}/excel/form" includes="*.xls*"/>
+            </path>
+            <sequential>
+                <propertyregex override="yes" property="moduleName" input="@{file}"
+                               regexp=".*[\\/]([^\\/]*)_form\.xls."
+                               replace="\1" casesensitive="false"/>
+                <antcall target="-genForm">
+                    <param name="module" value="${moduleName}"/>
+                    <param name="desc" value="Generate form - ${moduleName}"/>
+                    <param name="target" value="form"/>
+                </antcall>
+            </sequential>
+        </for>
+        <debug_echo msg="##### END of Modules(form) generation #####"/>
+    </target>
+
+    <target name="-gen-all-popup" >
+        <debug_echo msg="build-ver = ${build-ver}" />
+        <debug_echo msg="lib.dir = ${lib.dir}" />
+        <debug_echo msg="output.dir = ${output.dir}" />
+        <debug_echo msg="main-class = ${main-class}" />
+
+        <debug_echo msg="##### BEGIN of Modules(popup) generation #####"/>
+
+        <for param="file">
+            <path>
+                <fileset dir="${basedir}/excel/popup" includes="*.xls*"/>
+            </path>
+            <sequential>
+                <propertyregex override="yes" property="moduleName" input="@{file}"
+                               regexp=".*[\\/]([^\\/]*)_popup\.xls."
+                               replace="\1" casesensitive="false" defaultValue=""/>
+                <antcall target="-genForm">
+                    <param name="module" value="${moduleName}"/>
+                    <param name="desc" value="Generate popup - ${moduleName}"/>
+                    <param name="target" value="popup"/>
+                </antcall>
+            </sequential>
+        </for>
+        <debug_echo msg="##### END of Modules(popup) generation #####"/>
+    </target>
+
+    <target name="-gen-all-inheritance" >
+        <debug_echo msg="build-ver = ${build-ver}" />
+        <debug_echo msg="lib.dir = ${lib.dir}" />
+        <debug_echo msg="output.dir = ${output.dir}" />
+        <debug_echo msg="main-class = ${main-class}" />
+
+        <debug_echo msg="##### BEGIN of Modules(inheritance) generation #####"/>
+
+        <for param="file">
+            <path>
+                <fileset dir="${basedir}/excel/inheritance" includes="*.xls*"/>
+            </path>
+            <sequential>
+                <propertyregex override="yes" property="moduleName" input="@{file}"
+                               regexp=".*[\\/]([^\\/]*)_dataInheritanceProfile\.xls."
+                               replace="\1" casesensitive="false"/>
+                <antcall target="-genForm">
+                    <param name="module" value="${moduleName}"/>
+                    <param name="desc" value="Generate inheritance - ${moduleName}"/>
+                    <param name="target" value="dataMappingRule,dataInheritanceProfile"/>
+                </antcall>
+            </sequential>
+        </for>
+        <debug_echo msg="##### END of Modules(inheritance) generation #####"/>
+    </target>
+
+    <target name="-gen-all-searchView" >
+        <debug_echo msg="build-ver = ${build-ver}" />
+        <debug_echo msg="lib.dir = ${lib.dir}" />
+        <debug_echo msg="output.dir = ${output.dir}" />
+        <debug_echo msg="main-class = ${main-class}" />
+
+        <debug_echo msg="##### BEGIN of Modules(searchView) generation #####"/>
+
+        <for param="file">
+            <path>
+                <fileset dir="${basedir}/excel/searchView" includes="*.xls*"/>
+            </path>
+            <sequential>
+                <propertyregex override="yes" property="moduleName" input="@{file}"
+                               regexp=".*[\\/]([^\\/]*)_view\.xls."
+                               replace="\1" casesensitive="false" defaultValue=""/>
+                <antcall target="-genForm">
+                    <param name="module" value="${moduleName}"/>
+                    <param name="desc" value="Generate searchView - ${moduleName}"/>
+                    <param name="target" value="searchView"/>
+                </antcall>
+            </sequential>
+        </for>
+        <debug_echo msg="##### END of Modules(searchView) generation #####"/>
+    </target>
+
+
+    <target name="-gen-all-security" >
+        <debug_echo msg="build-ver = ${build-ver}" />
+        <debug_echo msg="lib.dir = ${lib.dir}" />
+        <debug_echo msg="output.dir = ${output.dir}" />
+        <debug_echo msg="main-class = ${main-class}" />
+
+        <debug_echo msg="##### BEGIN of Modules(security) generation #####"/>
+
+        <for param="file">
+            <path>
+                <fileset dir="${basedir}/excel/security" includes="*.xls*"/>
+            </path>
+            <sequential>
+                <propertyregex override="yes" property="moduleName" input="@{file}"
+                               regexp=".*[\\/]([^\\/]*)_entity_security\.xls."
+                               replace="\1" casesensitive="false"/>
+                <antcall target="-genForm">
+                    <param name="module" value="${moduleName}"/>
+                    <param name="desc" value="Generate security - ${moduleName}"/>
+                    <param name="target" value="security"/>
+                </antcall>
+            </sequential>
+        </for>
+        <debug_echo msg="##### END of Modules(security) generation #####"/>
+    </target>
+
+    <target name="release-install-inher" depends="-init-install, -gen-all-inher">
+        <debug_echo msg="${working.dir}/install/${jar-name}-${build-ver}-04-install-dml-inheritance.create.sql[created]"/>
+        <!-- concat biz DML -->
+        <concat destfile="${working.dir}/install/${jar-name}-${build-ver}-04-install-dml-inheritance.create.sql" force="yes" fixlastline="yes">
+            <filelist dir="${include.dir}/"            files="sql_header.sql"/>
+            <fileset dir="${output.dir}/scripts/"      includes="*_DML_DATA_INHERITANCE_PROFILE.sql"/>
+            <fileset dir="${output.dir}/scripts/"      includes="*_DML_DATA_MAPPING_RULE.sql"/>
+            <!--filelist dir="${output.dir}/script/"      files="DML_DATA_INHERITANCE_PROFILE.sql"/-->
+            <!--filelist dir="${output.dir}/script/"      files="DML_DATA_MAPPING_RULE.sql"/-->
+            <filelist dir="${include.dir}/"            files="sql_commit.sql"/>
+        </concat>
+    </target>
+
+    <target name="release-update-inher" depends="-init-update, -gen-all-inher">
+        <debug_echo msg="${working.dir}/install/${jar-name}-${build-ver}-04-update-dml-inheritance.create.sql[created]"/>
+        <!-- concat biz DML -->
+        <concat destfile="${working.dir}/install/${jar-name}-${build-ver}-04-update-dml-inheritance.create.sql" force="yes" fixlastline="yes">
+            <filelist dir="${include.dir}/"            files="sql_header.sql"/>
+            <fileset dir="${output.dir}/scripts/"      includes="*_DML_DATA_INHERITANCE_PROFILE.sql"/>
+            <fileset dir="${output.dir}/scripts/"      includes="*_DML_DATA_MAPPING_RULE.sql"/>
+            <!--filelist dir="${output.dir}/script/"      files="DML_DATA_INHERITANCE_PROFILE.sql"/-->
+            <!--filelist dir="${output.dir}/script/"      files="DML_DATA_MAPPING_RULE.sql"/-->
+            <filelist dir="${include.dir}/"            files="sql_commit.sql"/>
+        </concat>
+    </target>
+
+    <target name="release-install" depends="-init-install, -gen-all, gen-label, -genSysMsgSql">
+        <mkdir dir="${working.dir}/install"/>
+
+        <!-- clean working directory -->
+        <delete includeemptydirs="true">
+            <fileset dir="${working.dir}/install" includes="**/*"/>
+        </delete>
+
+        <!-- #01 concat pre-generation DDL SQL -->
+        <debug_echo msg="${working.dir}/install/${jar-name}-${build-ver}-install-01-ddl-preprocess.sql[created]"/>
+        <concat destfile="${working.dir}/install/${jar-name}-${build-ver}-install-01-ddl-preprocess.sql"  force="yes" fixlastline="yes">
+            <fileset dir="${output.dir}/../dbscripts/SetupSqlForRoot/"    includes="99950.init.ddl.preprocess.sql"/>
+        </concat>
+
+        <debug_echo msg="${working.dir}/install/${jar-name}-${build-ver}-install-02-ddl-gen-by-system.sql[created]"/>
+        <!-- #02 concat gen by system DDL SQL -->
+        <concat destfile="${working.dir}/install/${jar-name}-${build-ver}-install-02-ddl-gen-by-system.sql" force="yes" fixlastline="yes">
+            <filelist dir="${include.dir}/"            files="sql_header.sql"/>
+            <fileset dir="${output.dir}/scripts/"      includes="ddl/DDL_*.sql"/>
+        </concat>
+
+        <debug_echo msg="${working.dir}/install/${jar-name}-${build-ver}-install-03-dml-gen-by-system[created]"/>
+        <!-- #03 concat gen by system DML SQL -->
+        <concat destfile="${working.dir}/install/${jar-name}-${build-ver}-install-03-dml-gen-by-system.sql" force="yes" fixlastline="yes">
+            <filelist dir="${include.dir}/"            files="sql_header.sql"/>
+            <filelist dir="${output.dir}/security/"    files="system.sql"/>
+            <fileset dir="${output.dir}/scripts/"      includes="dml/DML_*.sql"/>
+            <filelist dir="${output.dir}/sql/"         files="update_sequence.sql"/>
+            <filelist dir="${output.dir}/sql/"         files="init_navi_data.sql"/>
+            <filelist dir="${output.dir}/sql/"         files="label.sql"/>
+            <filelist dir="${output.dir}/sql/"         files="systemMessage.sql"/>
+            <filelist dir="${include.dir}/"            files="sql_commit.sql"/>
+        </concat>
+
+        <debug_echo msg="${working.dir}/install/${jar-name}-${build-ver}-install-04-dml-gen-by-system-inheritance[created]"/>
+        <!-- #04 concat gen by system DML SQL - Inheritance -->
+        <concat destfile="${working.dir}/install/${jar-name}-${build-ver}-install-04-dml-gen-by-system-inheritance.sql" force="yes" fixlastline="yes">
+            <filelist dir="${include.dir}/"            files="sql_header.sql"/>
+            <fileset dir="${output.dir}/scripts/"      includes="*_DML_DATA_INHERITANCE_PROFILE.sql"/>
+            <fileset dir="${output.dir}/scripts/"      includes="*_DML_DATA_MAPPING_RULE.sql"/>
+            <filelist dir="${include.dir}/"            files="sql_commit.sql"/>
+        </concat>
+
+        <debug_echo msg="${working.dir}/install/${jar-name}-${build-ver}-install-05-dml-gen-by-system-security[created]"/>
+        <!-- #05 concat gen by system DML SQL - Security-->
+        <concat destfile="${working.dir}/install/${jar-name}-${build-ver}-install-05-dml-gen-by-system-security.sql" force="yes" fixlastline="yes">
+            <filelist dir="${include.dir}/"            files="sql_header.sql"/>
+            <fileset dir="${output.dir}/security/"     includes="*.sql" excludes="system.sql"/>
+            <filelist dir="${include.dir}/"            files="sql_commit.sql"/>
+        </concat>
+
+        <debug_echo msg="${working.dir}/install/${jar-name}-${build-ver}-install-06-dml-gen-by-system-validation[created]"/>
+        <!-- #06 concat gen by system DML SQL - Validation -->
+        <concat destfile="${working.dir}/install/${jar-name}-${build-ver}-install-06-dml-gen-by-system-validation.sql" force="yes" fixlastline="yes">
+            <filelist dir="${include.dir}/"            files="sql_header.sql"/>
+            <fileset dir="${output.dir}/"      includes="*_validation.sql"/>
+            <filelist dir="${include.dir}/"            files="sql_commit.sql"/>
+        </concat>
+
+        <debug_echo msg="${working.dir}/install/${jar-name}-${build-ver}-install-07-ddl-init-root.sql[created]"/>
+        <!-- #07 concat post-generation initialized DDL SQL -->
+        <concat destfile="${working.dir}/install/${jar-name}-${build-ver}-install-07-ddl-init-root.sql" force="yes" fixlastline="yes">
+            <filelist dir="${output.dir}/../dbscripts/SetupSqlForRoot/"       files="10120.root_create_view_for_mappedField.sql"/>
+        </concat>
+
+        <debug_echo msg="${working.dir}/install/${jar-name}-${build-ver}-install-08-dml-init-root.sql[created]"/>
+        <!-- #08 concat post-generation initialized DML SQL -->
+        <concat destfile="${working.dir}/install/${jar-name}-${build-ver}-install-08-dml-init-root.sql" force="yes" fixlastline="yes">
+            <filelist dir="${include.dir}/"            files="sql_header.sql"/>
+            <filelist dir="${output.dir}/../dbscripts/SetupSqlForRoot/"       files="00005.root_create_domain_and_user.sql"/>
+            <filelist dir="${output.dir}/../dbscripts/SetupSqlForRoot/"       files="00030.root_CODELIST.sql"/>
+            <filelist dir="${output.dir}/../dbscripts/SetupSqlForRoot/"       files="00040.root_HCL.sql"/>
+            <filelist dir="${output.dir}/../dbscripts/SetupSqlForRoot/"       files="00050.root_LOOKUPLIST.sql"/>
+            <filelist dir="${output.dir}/../dbscripts/SetupSqlForRoot/"       files="00110.apply_root_hcl.sql"/>
+            <filelist dir="${output.dir}/../dbscripts/SetupSqlForRoot/"       files="10030.init_SYSTEM_FILE.sql"/>
+            <filelist dir="${output.dir}/../dbscripts/SetupSqlForRoot/"       files="10040.init_PASSWORD_POLICY.sql"/>
+            <filelist dir="${output.dir}/../dbscripts/SetupSqlForRoot/"       files="10050.init_APPROVAL_TEMPLATE.SQL"/>
+            <filelist dir="${output.dir}/../dbscripts/SetupSqlForRoot/"       files="10060.init_NOTIFICATION.SQL"/>
+            <filelist dir="${output.dir}/../dbscripts/SetupSqlForRoot/"       files="10070.init_CPM_TEMPLATE.SQL"/>
+            <filelist dir="${output.dir}/../dbscripts/SetupSqlForRoot/"       files="10080.init_default_value.sql"/>
+            <filelist dir="${output.dir}/../dbscripts/SetupSqlForRoot/"       files="10090.init_related_doc_profile.sql"/>
+            <filelist dir="${output.dir}/../dbscripts/SetupSqlForRoot/"       files="10130.root_ADMIN_INITIALIZED.sql"/>
+            <filelist dir="${include.dir}/"            files="sql_commit.sql"/>
+        </concat>
+
+        <!-- #09 concat post-generation DDL SQL -->
+        <debug_echo msg="${working.dir}/install/${jar-name}-${build-ver}-install-09-ddl-postprocess.sql[created]"/>
+        <concat destfile="${working.dir}/install/${jar-name}-${build-ver}-install-09-ddl-postprocess.sql"  force="yes" fixlastline="yes">
+            <fileset dir="${output.dir}/../dbscripts/SetupSqlForRoot/"    includes="99960.init.ddl.postprocess.sql"/>
+        </concat>
+    </target>
+
+    <target name="release-update" depends="-init-update, -gen-all, gen-label, -genSysMsgSql">
+        <mkdir dir="${working.dir}/update"/>
+
+        <!-- clean working directory -->
+        <delete includeemptydirs="true">
+            <fileset dir="${working.dir}/update" includes="**/*"/>
+        </delete>
+
+        <debug_echo msg="${working.dir}/update/${jar-name}-${build-ver}-update-03-dml-base.default.sql[created]"/>
+        <!-- concat biz DML -->
+        <concat destfile="${working.dir}/update/${jar-name}-${build-ver}-update-03-dml-base.default.sql" force="yes" fixlastline="yes">
+            <filelist dir="${include.dir}/"            files="sql_header.sql"/>
+            <filelist dir="${output.dir}/security/"    files="system.sql"/>
+            <fileset dir="${output.dir}/security/"     includes="*.sql" excludes="system.sql"/>
+            <fileset dir="${output.dir}/scripts/"      includes="dml/DML_*.sql"/>
+            <filelist dir="${output.dir}/sql/"         files="init_navi_data.sql"/>
+            <filelist dir="${output.dir}/sql/"         files="insert_action_map.sql"/>
+            <filelist dir="${output.dir}/sql/"         files="update_sequence.sql"/>
+            <filelist dir="${output.dir}/sql/"         files="insert_action_map.sql"/>
+            <filelist dir="${output.dir}/sql/"         files="action_audit.sql"/>
+            <filelist dir="${output.dir}/sql/"         files="label.sql"/>
+            <filelist dir="${output.dir}/sql/"         files="systemMessage.sql"/>
+            <filelist dir="${include.dir}/"            files="sql_commit.sql"/>
+        </concat>
+
+        <debug_echo msg="${working.dir}/install/${jar-name}-${build-ver}-update-04-dml-inheritance.create.sql[created]"/>
+        <!-- concat biz DML -->
+        <concat destfile="${working.dir}/install/${jar-name}-${build-ver}-update-04-dml-inheritance.create.sql" force="yes" fixlastline="yes">
+            <filelist dir="${include.dir}/"            files="sql_header.sql"/>
+            <fileset dir="${output.dir}/scripts/"      includes="*_DML_DATA_INHERITANCE_PROFILE.sql"/>
+            <fileset dir="${output.dir}/scripts/"      includes="*_DML_DATA_MAPPING_RULE.sql"/>
+            <filelist dir="${include.dir}/"            files="sql_commit.sql"/>
+        </concat>
+
+    </target>
+
+    <target name="genBatch" depends="clean, -init-single"
+            description="Generate batch by setting properties: gen.batch.*">
+        <for list="${gen.batch.modules}" delimiter="," param="val">
+            <sequential>
+                <echo message = "module = @{val}"/>
+                <antcall target="-genForm">
+                    <param name="module" value="@{val}"/>
+                    <param name="desc" value="Generate core data - @{val}"/>
+                    <param name="target" value="${gen.batch.target}"/>
+                </antcall>
+            </sequential>
+        </for>
+    </target>
+
+    <target name="single-run" depends="-init-single, clean">
+        <if>
+            <not>
+                <isset property="cmdline.module"/>
+            </not>
+            <then>
+                <property name="cmdline.module" value="${gen.single.module}"/>
+            </then>
+        </if>
+
+        <debug_echo msg="output.dir = ${output.dir}" />
+        <debug_echo msg="main-class = ${main-class}" />
+
+        <antcall target="-genForm">
+            <param name="module" value="${cmdline.module}"/>
+            <param name="desc" value="Generate SINGLE module data."/>
+            <param name="target" value="${gen.single.target}"/>
+        </antcall>
+    </target>
+
+    <target name="clean-export">
+        <delete includeemptydirs="false">
+            <fileset dir="${gen.export.output.path}" includes="**/*"/>
+        </delete>
+    </target>
+
+    <target name="gen-export" description="Generate Search View Export Template">
+
+
+        <if>
+            <not>
+                <isset property="viewId"/>
+            </not>
+            <then>
+                <echo>Property "viewId" not set.</echo>
+                <echo>To set, please use command line:</echo>
+                <echo/>
+                <echo>       ant -gen-export -DviewId=[viewId/ALL] </echo>
+                <echo/>
+                <echo>Note:</echo>
+                <echo/>
+                <echo>       parameter viewId should be Search View id or ALL.</echo>
+                <echo>       ALL will generate all Search View Export Template.</echo>
+                <fail/>
+            </then>
+        </if>
+
+        <if>
+            <not>
+                <isset property="cmdline.domainId"/>
+            </not>
+            <then>
+                <property name="cmdline.domainId" value="${gen.domainId}"/>
+            </then>
+        </if>
+
+        <if>
+            <not>
+                <isset property="cmdline.export.locale"/>
+            </not>
+            <then>
+                <property name="cmdline.locale" value="${gen.export.locale}"/>
+            </then>
+        </if>
+
+        <!--
+        gen.export.template.file
+        -->
+        <debug_echo msg="start generate view: ${viewId}."/>
+
+        <debug_echo msg="Domain id is: ${cmdline.domainId}"/>
+        <debug_echo msg="Local is: ${cmdline.locale}."/>
+                <debug_echo msg="Out put path is: ${gen.export.output.path}"/>
+                <debug_echo msg="Template file is: ${gen.export.template.file}"/>
+
+        <java classname="com.core.cbx.generator.util.ExportTemplateGenerator" fork="true" maxmemory="512m">
+            <classpath refid="project.class.path"/>
+
+            <arg value="${cmdline.domainId}"/>
+
+           <arg value="${viewId}"/>
+            <arg value="${cmdline.locale}"/>
+            <arg value="${gen.export.template.file}"/>
+            <arg value="${gen.export.output.path}"/>
+            <arg value="${gen.export.title.row}"/>
+            <arg value="${gen.export.title.col}"/>
+            <arg value="${gen.export.dataRow}"/>
+       </java>
+    </target>
+
+    <target name="genSystemMessageSql" depends="-init-single, -genSysMsgSql"
+            description="Single used to generate the system message SQL">
+
+        <echo>System Message Generator</echo>
+        <echo>========================</echo>
+        <echo>Generated SQL can be found at following location:</echo>
+        <echo>  ${output.dir}/sql/systemMessage.sql </echo>
+    </target>
+
+    <target name="-genSysMsgSql" description="Generate the System Message SQL">
+        <taskdef  name="genSystemConfigSqlTask"
+            classname="com.core.cbx.resource.build.SystemMessageSqlGenerator">
+            <classpath refid ="project.class.path"/>
+        </taskdef>
+
+        <!-- create DBSetting.properties for the DB connection -->
+        <propertyfile file="DBSetting.properties"
+                      comment="AUTO GENERATED. To amend, plesae edit settings/generator.properties" >
+            <entry key="resource.ds1.domainId" value="${gen.domainId}"/>
+            <entry key="resource.ds1.resourceName" value="${gen.db.resourceName}"/>
+            <entry key="resource.ds1.xaDataSourceClassName" value="${gen.db.xaDataSourceClassName}"/>
+            <entry key="resource.ds1.maxPoolSize" value="${gen.db.maxPoolSize}"/>
+            <entry key="resource.ds1.xaProperties.user" value="${gen.db.user}"/>
+            <entry key="resource.ds1.xaProperties.password" value="${gen.db.pwd}"/>
+            <entry key="resource.ds1.xaProperties.URL" value="${gen.db.url}"/>
+        </propertyfile>
+
+        <genSystemConfigSqlTask
+            resourceFile="${gen.target.path}/src/main/resources/SystemMessage.txt"
+            startLine="1"
+            endLine="-1"
+            delimiter="\t"
+            overwrite="false"
+            targetFileName="${output.dir}/sql/systemMessage.sql"
+        />
+        <delete file="DBSetting.properties"/>
+    </target>
+
+    <target name="genPassword" description="Generate the password">
+        <property name="cmdline.passwordFile.path" value="${basedir}/password.txt"/>
+        <if>
+            <not><available file="${cmdline.passwordFile.path}" type="file"/></not>
+            <then>
+                <echo>Cannot find the password file:</echo>
+                <echo>  ${cmdline.passwordFile.path}</echo>
+                <echo/>
+                <echo>Following is the format of the password file.</echo>
+                <echo>Each line contains one password to be generated.</echo>
+                <echo>Example</echo>
+                <echo>-------</echo>
+                <echo>password1</echo>
+                <echo>password2</echo>
+                <echo>...</echo>
+                <echo/>
+                <echo/>
+            </then>
+            <else>
+                <java classname="com.core.cbx.security.PasswordGenerator" fork="true">
+                    <classpath>
+                        <pathelement location="settings"/>
+                        <fileset dir="${lib.dir}" includes="**/*.jar"/>
+                    </classpath>
+                    <arg value="${cmdline.passwordFile.path}"/>
+                </java>
+                <echo/>
+                <echo>Encrypted password file is generated at:</echo>
+                <echo>${cmdline.passwordFile.path}.encrypted.txt</echo>
+            </else>
+        </if>
+    </target>
+
+    <target name="cvstagdiff" description="List changed excel files between two different CVS tags">
+        <delete dir="${release}" quiet="true"/>
+
+        <mkdir dir="${release}" />
+
+        <tstamp>
+            <format property="releasedate" pattern="yyyy-MM-dd"/>
+        </tstamp>
+
+        <!-- diff excel source
+             To compare between two Tags, replace endDate="${releasedate}" with endTag="${release.current}"
+        -->
+        <cvstagdiff cvsRoot="${cvs.root}"
+                destfile="${release}/diff-excel.xml"
+                package="&quot;CBX_Enterprise_5.0/Program/CBXB/excel&quot;"
+                startTag="${release.previous}"
+                endDate="${releasedate}"
+                ignoreRemoved="true"
+        />
+
+        <!-- transform to plain text -->
+        <xslt in="${release}/diff-excel.xml" out="${release}/diff-excel.temp"
+              style="conf/cvstagdiff_filelist.xsl">
+        </xslt>
+
+        <!-- trim space and remove empty line -->
+        <copy file="${release}/diff-excel.temp" toFile="${release.difflist}" overwrite="true">
+          <filterchain>
+            <trim/>
+            <ignoreblank/>
+          </filterchain>
+        </copy>
+
+        <delete file="${release}/diff-excel.temp"/>
+    </target>
+
+    <target name="release" description="Generate release build">
+        <java classname="com.core.cbx.generator.batch.RunBatchCmd" fork="true">
+            <classpath refid="project.class.path"/>
+            <arg value="${release.difflist}"/>
+        </java>
+    </target>
+
+
+    <target name="dataMigration" description="Execute batch aciton">
+        <java classname="com.core.cbx.dataMigration.runBatchAction.CNTRunBatchAction" fork="true" maxmemory="512m">
+            <classpath refid="project.class.path"/>
+            <jvmarg value="-Dlog4j.configuration=file:${conf.dir}/log4j_dataMigration.properties"/>
+        </java>
+    </target>
+</project>

@@ -1,0 +1,30 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+
+
+<hibernate-mapping>
+
+    <class name = "com.core.cbx.datamegre.vo.tmp.CustFieldVo" table="TMP_CUST_FIELD">
+
+            <id name="id" ><generator class="native" /></id>
+            <property name="name" type="string"><column name="NAME"  sql-type="VARCHAR2(1000)" /> </property>
+            <property name="applyTo" type="string"><column name="APPLY_TO"  sql-type="VARCHAR2(1000)" /> </property>
+            <property name="type" type="string"><column name="TYPE"  sql-type="VARCHAR2(1000)" /> </property>
+            <property name="typeName" type="string"><column name="TYPE_NAME"  sql-type="VARCHAR2(1000)" /> </property>
+            <property name="tabId" type="string"><column name="TAB_ID"  sql-type="VARCHAR2(1000)" /> </property>
+            <property name="tableId" type="string"><column name="TABLE_ID"  sql-type="VARCHAR2(1000)" /> </property>
+            <property name="displayedHeading" type="string"><column name="DISPLAYED_HEADING"  sql-type="VARCHAR2(1000)" /> </property>
+            <property name="sequence" type="string"><column name="SEQUENCE"  sql-type="VARCHAR2(1000)" /> </property>
+            <property name="field" type="string"><column name="FIELD"  sql-type="VARCHAR2(1000)" /> </property>
+            <property name="label" type="string"><column name="LABEL"  sql-type="VARCHAR2(1000)" /> </property>
+            <property name="validation" type="string"><column name="VALIDATION"  sql-type="VARCHAR2(1000)" /> </property>
+            <property name="updatedByDc" type="string"><column name="UPDATED_BY_DC"  sql-type="VARCHAR2(1000)" /> </property>
+            <property name="formula" type="string"><column name="FORMULA"  sql-type="VARCHAR2(1000)" /> </property>
+            <property name="dataType" type="string"><column name="DATA_TYPE"  sql-type="VARCHAR2(1000)" /> </property>
+            <property name="show" type="string"><column name="SHOW"  sql-type="VARCHAR2(1000)" /> </property>
+            <property name="mandatory" type="string"><column name="MANDATORY"  sql-type="VARCHAR2(1000)" /> </property>
+            <property name="onScreenRemark" type="string"><column name="ON_SCREEN_REMARK"  sql-type="VARCHAR2(1000)" /> </property>
+    </class>
+
+</hibernate-mapping>

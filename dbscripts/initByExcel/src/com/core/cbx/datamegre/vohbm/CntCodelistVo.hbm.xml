@@ -1,0 +1,41 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+
+
+<hibernate-mapping>
+
+    <class name = "com.core.cbx.datamegre.vo.cnt.CntCodelistVo" table="CNT_CODELIST">
+
+            <id name="id" ><generator class="native" /></id>
+            <property name="revision" type="java.lang.Integer"><column name="REVISION"  sql-type="NUMBER(9,0)" /> </property>
+            <property name="entityVersion" type="java.lang.Integer"><column name="ENTITY_VERSION"  sql-type="NUMBER(9,0)" /> </property>
+            <property name="parentId" type="string"><column name="PARENT_ID"  sql-type="CHAR(32)" /> </property>
+            <property name="name" type="string"><column name="NAME"  sql-type="NVARCHAR2(400)" /> </property>
+            <property name="code" type="string"><column name="CODE"  sql-type="NVARCHAR2(400)" /> </property>
+            <property name="domainId" type="string"><column name="DOMAIN_ID"  sql-type="NVARCHAR2(400)" /> </property>
+            <property name="seqNo" type="java.lang.Integer"><column name="SEQ_NO"  sql-type="NUMBER(9,0)" /> </property>
+            <property name="disabled" type="java.lang.Integer"><column name="DISABLED"  sql-type="NUMBER(1,0)" /> </property>
+            <property name="custText1" type="string"><column name="CUST_TEXT1"  sql-type="NVARCHAR2(4000)" /> </property>
+            <property name="custText2" type="string"><column name="CUST_TEXT2"  sql-type="NVARCHAR2(4000)" /> </property>
+            <property name="custText3" type="string"><column name="CUST_TEXT3"  sql-type="NVARCHAR2(4000)" /> </property>
+            <property name="custText4" type="string"><column name="CUST_TEXT4"  sql-type="NVARCHAR2(4000)" /> </property>
+            <property name="custText5" type="string"><column name="CUST_TEXT5"  sql-type="NVARCHAR2(4000)" /> </property>
+            <property name="custText6" type="string"><column name="CUST_TEXT6"  sql-type="NVARCHAR2(4000)" /> </property>
+            <property name="custText7" type="string"><column name="CUST_TEXT7"  sql-type="NVARCHAR2(4000)" /> </property>
+            <property name="custDate1" type="date"><column name="CUST_DATE1"  sql-type="TIMESTAMP" /> </property>
+            <property name="custDate2" type="date"><column name="CUST_DATE2"  sql-type="TIMESTAMP" /> </property>
+            <property name="custDate3" type="date"><column name="CUST_DATE3"  sql-type="TIMESTAMP" /> </property>
+            <property name="custDate4" type="date"><column name="CUST_DATE4"  sql-type="TIMESTAMP" /> </property>
+            <property name="custDate5" type="date"><column name="CUST_DATE5"  sql-type="TIMESTAMP" /> </property>
+            <property name="custDate6" type="date"><column name="CUST_DATE6"  sql-type="TIMESTAMP" /> </property>
+            <property name="custDate7" type="date"><column name="CUST_DATE7"  sql-type="TIMESTAMP" /> </property>
+            <property name="custNumber1" type="java.lang.Double"><column name="CUST_NUMBER1"  sql-type="NUMBER(17,5)" /> </property>
+            <property name="custNumber2" type="java.lang.Double"><column name="CUST_NUMBER2"  sql-type="NUMBER(17,5)" /> </property>
+            <property name="custNumber3" type="java.lang.Double"><column name="CUST_NUMBER3"  sql-type="NUMBER(17,5)" /> </property>
+            <property name="custNumber4" type="java.lang.Double"><column name="CUST_NUMBER4"  sql-type="NUMBER(17,5)" /> </property>
+            <property name="custNumber5" type="java.lang.Double"><column name="CUST_NUMBER5"  sql-type="NUMBER(17,5)" /> </property>
+            <property name="custNumber6" type="java.lang.Double"><column name="CUST_NUMBER6"  sql-type="NUMBER(17,5)" /> </property>
+    </class>
+
+</hibernate-mapping>

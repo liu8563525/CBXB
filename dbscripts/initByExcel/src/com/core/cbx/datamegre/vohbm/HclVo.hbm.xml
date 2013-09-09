@@ -1,0 +1,39 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+
+
+<hibernate-mapping>
+
+    <class name = "com.core.cbx.datamegre.vo.tmp.HclVo" table="TMP_HCL">
+           <id name="id" ><generator class="native" /></id>
+            <property name="hierarchyType" type="string"><column name="HIERARCHY_TYPE"  sql-type="VARCHAR2(400)" /> </property>
+            <property name="ssl" type="string"><column name="SSL"  sql-type="VARCHAR2(400)" /> </property>
+            <property name="rssl" type="string"><column name="RSSL"  sql-type="VARCHAR2(400)" /> </property>
+            <property name="hierarchyTypeDescription" type="string"><column name="HIERARCHY_TYPE_DESCRIPTION"  sql-type="VARCHAR2(400)" /> </property>
+            <property name="level1" type="string"><column name="LEVEL_1"  sql-type="VARCHAR2(400)" /> </property>
+            <property name="level2" type="string"><column name="LEVEL_2"  sql-type="VARCHAR2(400)" /> </property>
+            <property name="level3" type="string"><column name="LEVEL_3"  sql-type="VARCHAR2(400)" /> </property>
+            <property name="level4" type="string"><column name="LEVEL_4"  sql-type="VARCHAR2(400)" /> </property>
+            <property name="level5" type="string"><column name="LEVEL_5"  sql-type="VARCHAR2(400)" /> </property>
+            <property name="level6" type="string"><column name="LEVEL_6"  sql-type="VARCHAR2(400)" /> </property>
+            <property name="level7" type="string"><column name="LEVEL_7"  sql-type="VARCHAR2(400)" /> </property>
+            <property name="level8" type="string"><column name="LEVEL_8"  sql-type="VARCHAR2(400)" /> </property>
+            <property name="level9" type="string"><column name="LEVEL_9"  sql-type="VARCHAR2(400)" /> </property>
+            <property name="level10" type="string"><column name="LEVEL_10"  sql-type="VARCHAR2(400)" /> </property>
+			<property name="excelRownum"></property>
+			<property name="excelName"></property>
+			<property name="level1Name" type="string"><column name="LEVEL1_NAME"  sql-type="VARCHAR2(500)" /> </property>
+            <property name="level2Name" type="string"><column name="LEVEL2_NAME"  sql-type="VARCHAR2(500)" /> </property>
+            <property name="level3Name" type="string"><column name="LEVEL3_NAME"  sql-type="VARCHAR2(500)" /> </property>
+            <property name="level4Name" type="string"><column name="LEVEL4_NAME"  sql-type="VARCHAR2(500)" /> </property>
+            <property name="level5Name" type="string"><column name="LEVEL5_NAME"  sql-type="VARCHAR2(500)" /> </property>
+            <property name="level6Name" type="string"><column name="LEVEL6_NAME"  sql-type="VARCHAR2(500)" /> </property>
+            <property name="level7Name" type="string"><column name="LEVEL7_NAME"  sql-type="VARCHAR2(500)" /> </property>
+            <property name="level8Name" type="string"><column name="LEVEL8_NAME"  sql-type="VARCHAR2(500)" /> </property>
+            <property name="level9Name" type="string"><column name="LEVEL9_NAME"  sql-type="VARCHAR2(500)" /> </property>
+            <property name="level10Name" type="string"><column name="LEVEL10_NAME"  sql-type="VARCHAR2(500)" /> </property>
+
+    </class>
+
+</hibernate-mapping>
