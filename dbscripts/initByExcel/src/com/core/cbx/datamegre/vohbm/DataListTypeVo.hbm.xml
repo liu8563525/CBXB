@@ -1,0 +1,23 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+
+<hibernate-mapping>
+	<class name = "com.core.cbx.datamegre.vo.tmp.DataListTypeVo" table="TMP_DATA_LIST_TYPE">
+		    <id name="id" >
+		      <generator class="native" />
+		    </id>		 
+			<property name="datalisttype" type="string"><column name="DATALISTTYPE"  sql-type="VARCHAR2(500)" /> </property>
+			<property name="applyTo" type="string"><column name="APPLY_TO"  sql-type="VARCHAR2(500)" /> </property>
+			<property name="description" type="string"><column name="DESCRIPTION"  sql-type="VARCHAR2(500)" /> </property>
+			<property name="seq" type="string"><column name="SEQ"  sql-type="VARCHAR2(500)" /> </property>
+			<property name="field" type="string"><column name="FIELD"  sql-type="VARCHAR2(500)" /> </property>
+			<property name="dataType" type="string"><column name="DATA_TYPE"  sql-type="VARCHAR2(500)" /> </property>
+			<property name="fieldLabel" type="string"><column name="FIELD_LABEL"  sql-type="VARCHAR2(500)" /> </property>
+			<property name="notAvailable" type="string"><column name="NOT_AVAILABLE"  sql-type="VARCHAR2(500)" /> </property>
+			<property name="mandatory" type="string"><column name="MANDATORY"  sql-type="VARCHAR2(500)" /> </property>
+			<property name="excelRownum"></property>
+			<property name="excelName"></property>
+	</class>
+
+</hibernate-mapping>

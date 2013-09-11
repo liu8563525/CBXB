@@ -1,0 +1,61 @@
+========================== Normal Steps ==============================
+Attention: This process should be started after CBX_Core release sql are run.
+
+Steps before run the program:
+
+1.Update your CBXB\excel folder from CVS.
+
+2.Switch the branch to the last release tag.
+
+3.Clear the CVS file log.
+
+3.Switch back to the Main trunk's head branch.
+
+4.Copy and paste the CVS file log from smart CVS, and remove the useless info, keep files list like this:
+//system.xlsx
+//entity/inspectcheck_entity.xlsx
+//entity/shipment_entity.xlsx
+//entity/vq_entity.xlsx
+....etc.
+
+5.Copy the files list to CBXB\dbscripts\releaseByJava\cvsString.txt.
+
+6.Setup the releaseSetting.properties, here is mine for reference:
+generator.properties.path=C\:\\CBXB\\settings\\generator.properties
+CBXB.output.path=C\:\\CBXB\\output
+release.output.path=C\:\\CBXB\\dbscripts\\releaseByJava\\output
+run.cmd.path=C\:\\CBXB\\run_batch.cmd
+run.cmd.batch.sql.path=C\:\\CBXB\\run_release_sql.cmd
+run.cmd.batch.sql.flag=NO
+gen.single.user=CBX_BIZ_REL
+gen.single.pwd=p
+gen.single.url=jdbc\:oracle\:thin\:@192.168.2.136\:1521\:dev
+
+NOTE:
+1.run.cmd.batch.sql.flag=NO, this should be "NO".
+2.Make sure you connect to the correct database.
+
+7.Ask Mankit to provide the reference entity xlsx files for generation:
+  e.g.For Sprint41: \\192.168.3.22\7DayTmp\mankit\system_entity
+
+6.Copy and paste the reference file to your CBXB\excel\entity folder.
+
+7.Check whether system.xlsx added any new sequnce, if yes, please modify the GenVo.java:
+  Comment out line 89, un-comment line 91.
+
+8.Run the program.
+
+============================ ERROR handling =================================================
+
+If there is any "SQL MAYBE NOT GENERATED|||" appears in the console log, please try to resolve them in the following ways:
+
+1.Check the report folder, if ERROR MESSAGE appears, please try to fix the corresponding xlsx.
+
+2.Run the ERROR target and module manually.
+
+3.Copy the sql files to: CBXB\dbscripts\releaseByJava\output
+
+4.Commit all the sql file in CBXB\dbscripts\releaseByJava\output to CVS in the release version folder:
+  e.g.  CBXB\dbscripts\release\5.0.025\srcSql
+
+5.Finish

@@ -1,0 +1,31 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+
+
+<hibernate-mapping>
+
+    <class name = "com.core.cbx.datamegre.vo.cnt.CntCodelistBookVo" table="CNT_CODELIST_BOOK">
+
+            <id name="id" ><generator class="native" /></id>
+            <property name="revision" type="java.lang.Integer"><column name="REVISION"  sql-type="NUMBER(9,0)" /> </property>
+            <property name="entityVersion" type="java.lang.Integer"><column name="ENTITY_VERSION"  sql-type="NUMBER(9,0)" /> </property>
+            <property name="createUser" type="string"><column name="CREATE_USER"  sql-type="NVARCHAR2(200)" /> </property>
+            <property name="updateUser" type="string"><column name="UPDATE_USER"  sql-type="NVARCHAR2(200)" /> </property>
+            <property name="name" type="string"><column name="NAME"  sql-type="NVARCHAR2(400)" /> </property>
+            <property name="status" type="string"><column name="STATUS"  sql-type="NVARCHAR2(400)" /> </property>
+            <property name="description" type="string"><column name="DESCRIPTION"  sql-type="NVARCHAR2(4000)" /> </property>
+            <property name="version" type="java.lang.Integer"><column name="VERSION"  sql-type="NUMBER(9,0)" /> </property>
+            <property name="updatedOn" type="date"><column name="UPDATED_ON"  sql-type="TIMESTAMP" /> </property>
+            <property name="isLatest" type="java.lang.Integer"><column name="IS_LATEST"  sql-type="NUMBER(1,0)" /> </property>
+            <property name="createdOn" type="date"><column name="CREATED_ON"  sql-type="TIMESTAMP" /> </property>
+            <property name="domainId" type="string"><column name="DOMAIN_ID"  sql-type="NVARCHAR2(400)" /> </property>
+            <property name="docStatus" type="string"><column name="DOC_STATUS"  sql-type="NVARCHAR2(400)" /> </property>
+            <property name="editingStatus" type="string"><column name="EDITING_STATUS"  sql-type="NVARCHAR2(400)" /> </property>
+            <property name="typeId" type="string"><column name="TYPE_ID"  sql-type="CHAR(32)" /> </property>
+            <property name="effectiveFrom" type="date"><column name="EFFECTIVE_FROM"  sql-type="TIMESTAMP" /> </property>
+            <property name="effectiveTo" type="date"><column name="EFFECTIVE_TO"  sql-type="TIMESTAMP" /> </property>
+            <property name="refNo" type="string"><column name="REF_NO"  sql-type="NVARCHAR2(1000)" /> </property>
+    </class>
+
+</hibernate-mapping>

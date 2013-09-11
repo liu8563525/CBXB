@@ -1,0 +1,21 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+
+<hibernate-mapping>
+
+    <class name = "com.core.cbx.datamegre.vo.cnt.CntCustomFieldDefItemVo" table="CNT_CUSTOM_FIELD_DEF_ITEM">
+            <id name="id" type="string"><column name="ID" sql-type="CHAR(32)"/><generator class="assigned" /></id>  
+            <property name="revision" type="java.lang.Integer"><column name="REVISION"  sql-type="NUMBER(9,0)" /> </property>
+            <property name="entityVersion" type="java.lang.Integer"><column name="ENTITY_VERSION"  sql-type="NUMBER(9,0)" /> </property>
+            <property name="domainId" type="string"><column name="DOMAIN_ID"  sql-type="NVARCHAR2(400)" /> </property>
+            <property name="parentId" type="string"><column name="PARENT_ID"  sql-type="CHAR(32)" /> </property>
+            <property name="lineNo" type="java.lang.Integer"><column name="LINE_NO"  sql-type="NUMBER(9,0)" /> </property>
+            <property name="fieldId" type="string"><column name="FIELD_ID"  sql-type="NVARCHAR2(400)" /> </property>
+            <property name="fieldType" type="string"><column name="FIELD_TYPE"  sql-type="NVARCHAR2(120)" /> </property>
+            <property name="fieldLabel" type="string"><column name="FIELD_LABEL"  sql-type="NVARCHAR2(400)" /> </property>
+            <property name="enabled" type="java.lang.Integer"><column name="ENABLED"  sql-type="NUMBER(1,0)" /> </property>
+            <property name="mandatory" type="java.lang.Integer"><column name="MANDATORY"  sql-type="NUMBER(1,0)" /> </property>
+    </class>
+
+</hibernate-mapping>

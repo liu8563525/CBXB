@@ -1,0 +1,12 @@
+/working/
+/logs/
+/report/
+/output/
+/temp/
+/ehcacheFolder/
+/builder.properties
+/.gitignore
+/.settings/
+/xml/
+/ehcacheFolder/
+/@JAVA_TMP_DIR@/

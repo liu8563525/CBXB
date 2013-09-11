@@ -1,0 +1,44 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+
+
+<hibernate-mapping>
+
+    <class name = "com.core.cbx.datamegre.vo.cnt.CntUserVo" table="CNT_USER">
+
+            <id name="id" ><generator class="native" /></id>
+            <property name="revision" type="java.lang.Integer"><column name="REVISION"  sql-type="NUMBER(9,0)" /> </property>
+            <property name="entityVersion" type="java.lang.Integer"><column name="ENTITY_VERSION"  sql-type="NUMBER(9,0)" /> </property>
+            <property name="version" type="java.lang.Integer"><column name="VERSION"  sql-type="NUMBER(9,0)" /> </property>
+            <property name="loginId" type="string"><column name="LOGIN_ID"  sql-type="NVARCHAR2(120)" /> </property>
+            <property name="firstName" type="string"><column name="FIRST_NAME"  sql-type="NVARCHAR2(120)" /> </property>
+            <property name="lastName" type="string"><column name="LAST_NAME"  sql-type="NVARCHAR2(120)" /> </property>
+            <property name="description" type="string"><column name="DESCRIPTION"  sql-type="NVARCHAR2(4000)" /> </property>
+            <property name="password" type="string"><column name="PASSWORD"  sql-type="NVARCHAR2(400)" /> </property>
+            <property name="email" type="string"><column name="EMAIL"  sql-type="NVARCHAR2(400)" /> </property>
+            <property name="accountExpireDate" type="date"><column name="ACCOUNT_EXPIRE_DATE"  sql-type="DATE" /> </property>
+            <property name="accountLocked" type="java.lang.Integer"><column name="ACCOUNT_LOCKED"  sql-type="NUMBER(1,0)" /> </property>
+            <property name="passwordModifiedDate" type="date"><column name="PASSWORD_MODIFIED_DATE"  sql-type="DATE" /> </property>
+            <property name="enabled" type="java.lang.Integer"><column name="ENABLED"  sql-type="NUMBER(1,0)" /> </property>
+            <property name="createUser" type="string"><column name="CREATE_USER"  sql-type="NVARCHAR2(120)" /> </property>
+            <property name="updateUser" type="string"><column name="UPDATE_USER"  sql-type="NVARCHAR2(120)" /> </property>
+            <property name="createdOn" type="date"><column name="CREATED_ON"  sql-type="TIMESTAMP" /> </property>
+            <property name="domainId" type="string"><column name="DOMAIN_ID"  sql-type="NVARCHAR2(70)" /> </property>
+            <property name="phone" type="string"><column name="PHONE"  sql-type="NVARCHAR2(120)" /> </property>
+            <property name="fax" type="string"><column name="FAX"  sql-type="NVARCHAR2(120)" /> </property>
+            <property name="updatedOn" type="date"><column name="UPDATED_ON"  sql-type="TIMESTAMP" /> </property>
+            <property name="isLatest" type="java.lang.Integer"><column name="IS_LATEST"  sql-type="NUMBER(1,0)" /> </property>
+            <property name="status" type="string"><column name="STATUS"  sql-type="NVARCHAR2(400)" /> </property>
+            <property name="docStatus" type="string"><column name="DOC_STATUS"  sql-type="NVARCHAR2(400)" /> </property>
+            <property name="edittingStatus" type="string"><column name="EDITTING_STATUS"  sql-type="NVARCHAR2(400)" /> </property>
+            <property name="mobile" type="string"><column name="MOBILE"  sql-type="NVARCHAR2(120)" /> </property>
+            <property name="language" type="string"><column name="LANGUAGE"  sql-type="NVARCHAR2(120)" /> </property>
+            <property name="timeZone" type="string"><column name="TIME_ZONE"  sql-type="NVARCHAR2(120)" /> </property>
+            <property name="signatureFileId" type="string"><column name="SIGNATURE_FILE_ID"  sql-type="CHAR(32)" /> </property>
+            <property name="memberGroup" type="string"><column name="MEMBER_GROUP"  sql-type="NVARCHAR2(400)" /> </property>
+            <property name="grantedRole" type="string"><column name="GRANTED_ROLE"  sql-type="NVARCHAR2(400)" /> </property>
+            <property name="deniedRole" type="string"><column name="DENIED_ROLE"  sql-type="NVARCHAR2(400)" /> </property>
+    </class>
+
+</hibernate-mapping>
