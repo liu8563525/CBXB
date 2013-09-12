@@ -1,0 +1,41 @@
+<?xml version='1.0' encoding='utf-8'?>
+
+<!DOCTYPE hibernate-configuration PUBLIC
+		"-//Hibernate/Hibernate Configuration DTD 3.0//EN"
+		"http://hibernate.sourceforge.net/hibernate-configuration-3.0.dtd">
+
+<hibernate-configuration>
+	<session-factory>
+		<!-- jdbc connection properties -->
+		<property name="hibernate.dialect">org.hibernate.dialect.Oracle9Dialect</property>
+		<property name="hibernate.connection.driver_class">oracle.jdbc.driver.OracleDriver</property>	
+		<property name="hibernate.connection.url">jdbc:oracle:thin:@192.168.2.78:1521:saint10g</property>
+		<property name="hibernate.connection.username">CNT5_0329</property>
+		<property name="hibernate.connection.password">CNT5_0329</property>
+		<property name="hibernate.show_sql">false</property> 
+		<property name="hibernate.hbm2ddl.auto">update</property>
+		
+		<!-- Temporary VO List -->
+		<mapping resource = "com/core/cbx/datamegre/vohbm/CodeListVo.hbm.xml" /> 
+		<mapping resource = "com/core/cbx/datamegre/vohbm/DataListTypeVo.hbm.xml" /> 
+		<mapping resource = "com/core/cbx/datamegre/vohbm/HclVo.hbm.xml" />
+		<mapping resource = "com/core/cbx/datamegre/vohbm/CustFieldVo.hbm.xml" />
+		
+		<!-- CNT VO list -->
+		<mapping resource = "com/core/cbx/datamegre/vohbm/CntCodelistVo.hbm.xml" /> 
+		<mapping resource = "com/core/cbx/datamegre/vohbm/CntCodelistBookVo.hbm.xml" /> 		
+		<mapping resource = "com/core/cbx/datamegre/vohbm/CntCustomFieldDefVo.hbm.xml" /> 
+		<mapping resource = "com/core/cbx/datamegre/vohbm/CntCustomFieldDefItemVo.hbm.xml" />
+		<mapping resource = "com/core/cbx/datamegre/vohbm/CntHclVo.hbm.xml" />
+		<mapping resource = "com/core/cbx/datamegre/vohbm/CntHclTypeVo.hbm.xml" />
+		<mapping resource = "com/core/cbx/datamegre/vohbm/CntHclTypeLevelVo.hbm.xml" />
+		<mapping resource = "com/core/cbx/datamegre/vohbm/CntHclNodeVo.hbm.xml" />
+		<mapping resource = "com/core/cbx/datamegre/vohbm/CntUserVo.hbm.xml" />
+		<mapping resource = "com/core/cbx/datamegre/vohbm/CntCodelistTypeVo.hbm.xml" />
+		<mapping resource = "com/core/cbx/datamegre/vohbm/CntCodelistTypeItemVo.hbm.xml" />
+		
+		
+		
+		
+	</session-factory>
+</hibernate-configuration>

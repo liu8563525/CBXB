@@ -1,0 +1,23 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+
+
+<hibernate-mapping>
+
+    <class name = "com.core.cbx.datamegre.vo.cnt.CntCodelistTypeItemVo" table="CNT_CODELIST_TYPE_ITEM">
+
+            <id name="id" ><generator class="native" /></id>
+            <property name="parentId" type="string"><column name="PARENT_ID"  sql-type="CHAR(32)" /> </property>
+            <property name="revision" type="java.lang.Integer"><column name="REVISION"  sql-type="NUMBER(9,0)" /> </property>
+            <property name="entityVersion" type="java.lang.Integer"><column name="ENTITY_VERSION"  sql-type="NUMBER(9,0)" /> </property>
+            <property name="seqNo" type="java.lang.Integer"><column name="SEQ_NO"  sql-type="NUMBER(9,0)" /> </property>
+            <property name="domainId" type="string"><column name="DOMAIN_ID"  sql-type="NVARCHAR2(400)" /> </property>
+            <property name="columnName" type="string"><column name="COLUMN_NAME"  sql-type="NVARCHAR2(200)" /> </property>
+            <property name="dataType" type="string"><column name="DATA_TYPE"  sql-type="NVARCHAR2(200)" /> </property>
+            <property name="label" type="string"><column name="LABEL"  sql-type="NVARCHAR2(400)" /> </property>
+            <property name="show" type="java.lang.Integer"><column name="SHOW"  sql-type="NUMBER(1,0)" /> </property>
+            <property name="mandatory" type="java.lang.Integer"><column name="MANDATORY"  sql-type="NUMBER(1,0)" /> </property>
+    </class>
+
+</hibernate-mapping>

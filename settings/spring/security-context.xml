@@ -1,0 +1,161 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:context="http://www.springframework.org/schema/context"
+    xmlns:security="http://www.springframework.org/schema/security"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+           http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.0.xsd
+           http://www.springframework.org/schema/security http://www.springframework.org/schema/security/spring-security-3.0.xsd">
+
+    <security:http entry-point-ref="authenticationEntryPoint">
+        <!-- For all login.jsp* pages, spring security will NOT check the authorization/
+            authentication -->
+        <security:intercept-url pattern="/login.jsp*"
+            filters="none" />
+        <!-- access="ROLE_LOGIN_USER" implies that user need have authority GrantedAuthorityImpl("ROLE_LOGIN_USER")
+            to access URL with pattern="/**" This right, "ROLE_LOGIN_USER", will be assigned
+            by default in the cntUserService when retrieving user info. -->
+        <security:intercept-url pattern="/entry/**" 
+            access="ROLE_LOGIN_USER" />
+        <security:intercept-url pattern="/invalidatePrevSession.jsp*" 
+            access="ROLE_LOGIN_USER" />
+        <!-- <security:form-login login-page="/login.jsp"
+            authentication-success-handler-ref="authenticationSuccessHandler"
+            authentication-failure-handler-ref="authenticationFailureHandler" /> -->
+        <!-- cntSessionFilter is used to refresh the CntSessionInfo -->
+        <security:custom-filter position="CONCURRENT_SESSION_FILTER"
+            ref="cntSessionFilter" />
+        <security:custom-filter position="FORM_LOGIN_FILTER"
+            ref="cntAuthenticationFilter" />
+        <!-- 
+        <security:custom-filter before="LOGOUT_FILTER" ref="cntLogoutFilter"/>
+        -->
+        <security:logout logout-success-url="/login.jsp" />
+    </security:http>
+
+    <bean id="cntAuthenticationFilter" class="com.core.cbx.security.web.CntAuthenticationFilter">
+        <property name="authenticationFailureHandler" ref="authenticationFailureHandler" />
+        <property name="authenticationSuccessHandler" ref="authenticationSuccessHandler" />
+        <property name="authenticationManager" ref="authenticationManager" />
+        <property name="sessionAuthenticationStrategy" ref="sessionAuthenticationStrategy" />
+
+    </bean>
+
+    <bean id="authenticationEntryPoint"
+        class="org.springframework.security.web.authentication.LoginUrlAuthenticationEntryPoint">
+        <property name="loginFormUrl" value="/login.jsp" />
+    </bean>
+
+    <bean id="sessionAuthenticationStrategy"
+        class="com.core.cbx.security.web.CntSessionStrategy">
+        <constructor-arg>
+            <ref bean="cntSessionRegistry" />
+        </constructor-arg>
+        <property name="registerIpUrl" value="/login.jsp?error=2" />
+        <property name="registerIpFailureUrl" value="/login.jsp?error=3" />
+        <property name="userRegisterIpUrl" value="/register.jsp" />
+        <property name="invalidatePreviousSessionUrl" value="/invalidatePrevSession.jsp" />
+    </bean>
+
+    <!--  
+    <bean id="cntLogoutFilter" class="com.core.cbx.security.web.CntLogoutFilter">
+        <constructor-arg>
+            <bean
+                class="org.springframework.security.web.authentication.logout.SimpleUrlLogoutSuccessHandler" />
+        </constructor-arg>
+        <constructor-arg>
+            <list>
+                <bean
+                    class="org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler" />
+                <bean
+                    class="com.core.cbx.security.web.CntLogoutHandler" />
+            </list>
+        </constructor-arg>
+        <property name="defaultTargetUrl" value="/login.jsp" />
+    </bean>
+    -->
+
+    <security:authentication-manager alias="authenticationManager">
+        <security:authentication-provider
+            user-service-ref="cntUserService">
+            <security:password-encoder ref="passwordEncoder">
+                <!--<security:salt-source user-property="username" /> -->
+            </security:password-encoder>
+        </security:authentication-provider>
+    </security:authentication-manager>
+
+    <!-- CntAuthenticationSuccessHandler mainly used to assign the LoginSession
+        after successfully logged on -->
+    <bean id="authenticationSuccessHandler"
+        class="com.core.cbx.security.web.CntAuthenticationSuccessHandler">
+        <property name="defaultTargetUrl" value="/entry/#DEFAULT" />
+    </bean>
+
+    <bean id="authenticationFailureHandler"
+        class="com.core.cbx.security.web.CntAuthenticationFailureHandler">
+        <property name="failureUrl" value="/login.jsp?error=1" />
+    </bean>
+
+    <!-- cntSessionFilter is used to refresh the CntSessionInfo -->
+    <bean id="cntSessionFilter" class="com.core.cbx.security.web.CntSessionFilter">
+        <property name="cntSessionRegistry" ref="cntSessionRegistry" />
+        <property name="expiredUrl" value="/sessionexp" />
+        <property name="invalidatePreviousSessionUrl" value="/invalidatePrevSession.jsp" />
+        <property name="logoutUrl" value="/j_spring_security_logout" />
+        <property name="confirmInValidatePrevSessionUrl" value="/j_confirm_invalidate_previous_session" />
+    </bean>
+
+    <bean id="cntSessionRegistry " class="com.core.cbx.security.session.CntSessionRegistryCacheImp" />
+
+    <bean id="cntUserService" class="com.core.cbx.security.user.CntUserService" />
+
+    <!-- encoder: now use SHA-512, available strength are: 1, 256, 384, 512 -->
+    <bean id="passwordEncoder"
+        class="org.springframework.security.authentication.encoding.ShaPasswordEncoder">
+        <constructor-arg value="256" />
+    </bean>
+
+    <bean name="sessionUtilInitializer"
+        class="org.springframework.beans.factory.config.MethodInvokingFactoryBean">
+        <property name="staticMethod"
+            value="com.core.cbx.security.session.SessionUtil.setCntSessionRegistry" />
+        <property name="arguments">
+            <list>
+                <ref bean="cntSessionRegistry" />
+            </list>
+        </property>
+    </bean>
+
+    <bean name="authUtilInitializer"
+        class="org.springframework.beans.factory.config.MethodInvokingFactoryBean">
+        <property name="staticMethod"
+            value="com.core.cbx.security.AuthenticationUtil.setAuthenticationManager" />
+        <property name="arguments">
+            <list>
+                <ref bean="authenticationManager" />
+            </list>
+        </property>
+    </bean>
+
+    <bean name="securityContextHolderStrategySetter"
+        class="org.springframework.beans.factory.config.MethodInvokingFactoryBean">
+        <property name="staticMethod"
+            value="org.springframework.security.core.context.SecurityContextHolder.setStrategyName" />
+        <property name="arguments">
+            <list>
+                <value>MODE_INHERITABLETHREADLOCAL</value>
+            </list>
+        </property>
+    </bean>
+
+    <bean name="securityPasswordEncodingStrategySetter"
+        class="org.springframework.beans.factory.config.MethodInvokingFactoryBean">
+        <property name="staticMethod"
+            value="com.core.cbx.security.acl.UserUtil.setPasswordEncoder" />
+        <property name="arguments">
+            <list>
+                <ref bean="passwordEncoder" />
+            </list>
+        </property>
+    </bean>
+
+
+</beans>

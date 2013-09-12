@@ -1,0 +1,82 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+
+<hibernate-mapping>
+	<class name = "com.core.cbx.datamegre.vo.tmp.CodeListVo" table="TMP_CODELIST">
+		    <id name="id" >
+		      <generator class="native" />
+		    </id>		
+			<property name="dataListType"></property>
+			<property name="codeListName"></property>
+			<property name="excelRownum"></property>
+			<property name="excelName"></property>
+			<property name="description"></property>
+			<property name="seq"></property>
+			<property name="code"></property>
+			<property name="name"></property>
+			<property name="notAvailable"></property>
+			<property name="column1"></property>
+			<property name="column2"></property>
+			<property name="column3"></property>
+			<property name="column4"></property>
+			<property name="column5"></property>
+			<property name="column6"></property>
+			<property name="column7"></property>
+			<property name="column8"></property>
+			<property name="column9"></property>
+			<property name="column10"></property>
+			<property name="column11"></property>
+			<property name="column12"></property>
+			<property name="column13"></property>
+			<property name="column14"></property>
+			<property name="column15"></property>
+			<property name="column16"></property>
+			<property name="column17"></property>
+			<property name="column18"></property>
+			<property name="column19"></property>
+			<property name="column20"></property>
+			<property name="column21"></property>
+			<property name="column22"></property>
+			<property name="column23"></property>
+			<property name="column24"></property>
+			<property name="column25"></property>
+			<property name="column26"></property>
+			<property name="column27"></property>
+			<property name="column28"></property>
+			<property name="column29"></property>
+			<property name="column30"></property>
+			<property name="column31"></property>
+			<property name="column32"></property>
+			<property name="column33"></property>
+			<property name="column34"></property>
+			<property name="column35"></property>
+			<property name="column36"></property>
+			<property name="column37"></property>
+			<property name="column38"></property>
+			<property name="column39"></property>
+			<property name="column40"></property>
+			<property name="column41"></property>
+			<property name="column42"></property>
+			<property name="column43"></property>
+			<property name="column44"></property>
+			<property name="column45"></property>
+			<property name="column46"></property>
+			<property name="column47"></property>
+			<property name="column48"></property>
+			<property name="column49"></property>
+			<property name="column50"></property>
+			<property name="column51"></property>
+			<property name="column52"></property>
+			<property name="column53"></property>
+			<property name="column54"></property>
+			<property name="column55"></property>
+			<property name="column56"></property>
+			<property name="column57"></property>
+			<property name="column58"></property>
+			<property name="column59"></property>
+			<property name="column60"></property>
+
+	</class>
+
+</hibernate-mapping>

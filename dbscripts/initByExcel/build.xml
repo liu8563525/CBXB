@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<project name="cbx-core" default="genSQL" basedir="." xmlns:ivy="antlib:org.apache.ivy.ant">
+
+    <property name="artifact.name" value="cbx-sqlGenerator"/>
+    <property name="artifact.version" value="5.0.001.0"/>
+
+    <property name="dir.src" value="${basedir}/src"/>
+    <property name="dir.lib" value="${basedir}/lib"/>
+    <property name="dir.build" value="${basedir}/build"/>
+    <property name="dir.build.classes" value="${basedir}/build/classes"/>
+    <property name="dir.release" value="${basedir}/release"/>
+
+    <taskdef resource="net/sf/antcontrib/antlib.xml" classpath="ant-lib/ant-contrib-1.0b3.jar"/>
+
+    <!-- =================================
+               compile classpath
+     ================================= -->
+    <path id="compile.path.id">
+        <fileset dir="${dir.lib}">
+            <include name="**/*.jar"/>
+        </fileset>
+    </path>
+
+    <!-- =================================
+      target: clean
+     ================================= -->
+    <target name="clean" description="Clean the target folders">
+        <delete dir="${dir.build}" includeemptydirs="true" />
+        <delete dir="${basedir}/logs" includeemptydirs="true" />
+        <delete dir="${basedir}/ehcacheFolder" includeemptydirs="true" />
+    </target>
+
+   <!-- =================================
+      target: compile
+     ================================= -->
+    <target name="compile" description="Compile the project">
+        <copy todir="${dir.build.classes}">
+          <fileset dir="${dir.src}">
+               <include name="**/*.xml"/>
+               <include name="**/*.xsd"/>
+               <include name="**/*.properties"/>
+          </fileset>
+        </copy>
+        <javac srcdir="${dir.src}" destdir="${dir.build.classes}" classpathref="compile.path.id"
+               target="1.5" includeantruntime="false" debug="false">
+               <compilerarg value="-Xlint:unchecked"/>
+               <compilerarg value="-Xlint:deprecation"/>
+        </javac>
+    </target>
+
+    <target name="jar" depends="clean, compile" description="Create JAR">
+        <!-- Create binary JAR -->
+        <jar destfile="${dir.release}/${artifact.name}-${artifact.version}.jar">
+            <fileset dir="${dir.build.classes}"
+                     excludes="DBSetting.properties, *log4j.properties, *log4j.xml"
+            />
+        </jar>
+    </target>
+
+    <!-- =================================
+      Target: eclipse
+      Description: generate the eclipse .project and .classpath files
+     ================================= -->
+    <taskdef name="eclipse" classname="prantl.ant.eclipse.EclipseTask"
+            classpath="ant-lib/ant-eclipse-1.0-core.jar" />
+
+    <target name="eclipse" description="synchronize Eclipse Project Files">
+        <path id="test.compile.path.id">
+            <fileset dir="${dir.lib}/test">
+                <include name="**/*.jar"/>
+            </fileset>
+        </path>
+        <propertyregex override="yes" property="eclipse.project.name" input="${basedir}"
+                       regexp="^.*[\\/]([^\\/]*)$"
+                       replace="\1" casesensitive="false"/>
+        <echo>Eclipse project name: ${eclipse.project.name}</echo>
+        <eclipse mode="java" updatealways="true">
+            <project name="${eclipse.project.name}">
+                <buildCommand name="net.sf.eclipsecs.core.CheckstyleBuilder" nature="net.sf.eclipsecs.core.CheckstyleNature"/>
+                <buildCommand name="edu.umd.cs.findbugs.plugin.eclipse.findbugsBuilder" nature="edu.umd.cs.findbugs.plugin.eclipse.findbugsNature"/>
+            </project>
+            <classpath>
+                <source path="${dir.src}" output="${dir.build.classes}"/>
+                <library pathref="compile.path.id"/>
+                <output path="${dir.build.classes}" />
+            </classpath>
+        </eclipse>
+    </target>
+
+    <!-- =================================
+      Target: Gen SQL from excel
+      Description: generate the SQL statements
+     ================================= -->
+    <target name="genSQL" depends="clean, compile" description="generate the SQL files">
+
+        <java classname="com.core.cbx.datamegre.handler.InitByExcelHandler" fork="true">
+            <classpath>
+                <pathelement location="${dir.build.classes}"/>
+                <fileset dir="${dir.lib}" includes="**/*.jar"/>
+            </classpath>
+        </java>
+    </target>
+</project>
