@@ -24,5 +24,9 @@ INSERT INTO CTM_CODELIST_BOOK (ID,DOMAIN_ID,REF_ENTITY_NAME)  select  (SELECT ID
 FROM DUAL WHERE NOT EXISTS (SELECT 1 FROM CTM_CODELIST_BOOK WHERE DOMAIN_ID = '/' AND ID = (SELECT ID from cnt_codelist where parent_id in (SELECT ID from cnt_codelist_book where name='CONTACT_TYPE' AND DOMAIN_ID='/') and code='DEFAULT_FOR_QUOTE'));
 --// END: CNT-10852
 
+---CNT-10901 BEGIN-----------
+UPDATE CNT_CODELIST SET NAME = 'Comprehensive Quote' WHERE NAME = 'Comphensive Quote';
+---CNT-10901 END-----------
+
 
 COMMIT;   
