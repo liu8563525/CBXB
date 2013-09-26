@@ -45,9 +45,11 @@
     </path>
 
     <target name="clean">
+        <mkdir dir="${output.dir}"/>
         <delete includeemptydirs="false">
             <fileset dir="${output.dir}" includes="**/*"/>
         </delete>
+        <mkdir dir="${working.dir}"/>
         <delete includeemptydirs="false">
             <fileset dir="${working.dir}" includes="**/*"/>
         </delete>
