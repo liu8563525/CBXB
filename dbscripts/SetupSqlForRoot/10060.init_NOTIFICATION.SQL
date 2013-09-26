@@ -413,4 +413,77 @@ LOOP
 END LOOP;
     END;
 /
---//BEG: CNT-9463 (S60)
+--//END: CNT-9463 (S60)
+
+--//BEG: CNT-10964 (S60)
+--// Setup notification profile for External Domain Account Activation
+INSERT INTO cnt_notification_profile (
+  id, revision, entity_version, domain_id, version,
+  doc_status, editing_status, create_user, created_on,
+  profile_name,
+  profile_desc,
+  subject,
+  content,
+  priority, inbox_enabled, email_enabled,
+  to_apl_requester, to_apl_current_approver, to_apl_next_approver,
+  ref_no,
+  hub_domain_id, is_for_reference, is_latest, create_user_name, update_user_name
+) VALUES (
+  Sys_Guid(), 1, 1, '/', 1,
+  'active', 'confirmed', 'system', SYSDATE,
+  'External Domain Account Activation Notification Profile',
+  'Notification profile to notify user account information in established master domain',
+  'Welcome to CBX!',
+  '<p font-size:="" style="padding-left:2em;font-family:">
+  Dear User,</p>
+<p font-size:="" style="padding-left:2em;font-family:">
+  Your CBX account is now ready.You can start using the service with the following URL and login details:</p>
+<p font-size:="" style="padding-left:2em;font-family:">
+  URL: <a href="${(serverUrl)!""}" style="font-family: Calibri, sans-serif; font-size: 14px;">${(serverUrl)!""}</a><br />
+  User ID: ${(reqDoc.loginId)!""}<br />
+  Password: (To be provided to you in a separate email)</p>
+<p font-size:="" style="padding-left:2em;font-family:">
+  Thank you for your attention.</p>
+<p font-size:="" style="padding-left:2em;font-family:">
+  Best Regards,<br />
+  CBX Administrator</p>',
+  0, 0, 1,
+  0, 0, 0,
+  'External Domain Account Activation Notification Profile',
+  '/', 0, 1, 'system', 'system');
+
+--// Setup notification profile for External Domain Account Password notiifcation
+INSERT INTO cnt_notification_profile (
+  id, revision, entity_version, domain_id, version,
+  doc_status, editing_status, create_user, created_on,
+  profile_name,
+  profile_desc,
+  subject,
+  content,
+  priority, inbox_enabled, email_enabled,
+  to_apl_requester, to_apl_current_approver, to_apl_next_approver,
+  ref_no,
+  hub_domain_id, is_for_reference, is_latest, create_user_name, update_user_name
+) VALUES (
+  Sys_Guid(), 1, 1, '/', 1,
+  'active', 'confirmed', 'system', SYSDATE,
+  'External Domain Account Password Notification Profile',
+  'Notification profile to notify user account password in established master domain',
+  'Welcome to CBX!',
+  '<p font-size:="" style="padding-left:2em;font-family:">
+  Dear User,</p>
+<p font-size:="" style="padding-left:2em;font-family:">
+  Please find below a temporary password for your CBX account. Please use this with the URL &amp; Login ID provided in our previous email to start using the application:</p>
+<p font-size:="" style="padding-left:2em;font-family:">
+  Password: ${(password)!""}</p>
+<p font-size:="" style="padding-left:2em;font-family:">
+  Thank you for your attention.</p>
+<p font-size:="" style="padding-left:2em;font-family:">
+  Best Regards,<br />
+  CBX Administrator</p>',
+  0, 0, 1,
+  0, 0, 0,
+  'External Domain Account Password Notification Profile',
+  '/', 0, 1, 'system', 'system');
+
+--//END: CNT-10964 (S60)

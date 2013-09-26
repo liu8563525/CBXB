@@ -875,4 +875,112 @@ END;
     DECODE (mpi.is_set, 0, '', 1, 'Set')
   FROM cnt_mpo_item mpi;
 --END OF CNT-10728 -----
+
+--//BEG: CNT-10964 (S60)
+-- // [PART-1]
+-- // update IS_VENDOR_ACCESS = 1 for hub vendor profiles which vendors access already approved
+-- // PORFILE_TYPE = 0, i.e. Normal profile
+UPDATE cnt_vendor v SET is_vendor_access = 1
+WHERE EXISTS (
+  SELECT 1 FROM cnt_external_access_request ear
+  WHERE ear.external_party_id = v.id
+  AND ear.status = 'approved'
+)
+AND v.is_for_reference = 0
+AND v.profile_type = 0;
+
+-- // update IS_VENDOR_ACCESS = 1 in external vendor profiles
+-- // PROFILE_TYPE = 1, i.e. External proflie
+UPDATE cnt_vendor v SET is_vendor_access = 1
+WHERE EXISTS (
+  SELECT 1 FROM cnt_external_access_request ear
+  WHERE ear.external_domain_id = v.domain_id
+  AND ear.status = 'approved'
+)
+AND v.is_for_reference = 0
+AND v.profile_type = 1;
+
+-- // update IS_VENDOR_ACCESS = 1 for the profiles which are ready for hub domain update
+UPDATE cnt_vendor SET is_vendor_access = 1 WHERE profile_type = 2;
+
+-- // update IS_VENDOR_ACCEESS = 0 for the profiles which do not have the flag value
+UPDATE cnt_vendor SET is_vendor_access = 0 WHERE is_vendor_access IS NULL;
+
+-- // clear cached vendor entities
+DELETE FROM cnt_serialized_entity WHERE target_entity = 'Vendor';
+
+--// [PART2]
+--// Setup notification profile for External Domain Account Activation
+INSERT INTO cnt_notification_profile (
+  id, revision, entity_version, domain_id, version,
+  doc_status, editing_status, create_user, created_on,
+  profile_name,
+  profile_desc,
+  subject,
+  content,
+  priority, inbox_enabled, email_enabled,
+  to_apl_requester, to_apl_current_approver, to_apl_next_approver,
+  ref_no,
+  hub_domain_id, is_for_reference, is_latest, create_user_name, update_user_name
+) VALUES (
+  Sys_Guid(), 1, 1, '/', 1,
+  'active', 'confirmed', 'system', SYSDATE,
+  'External Domain Account Activation Notification Profile',
+  'Notification profile to notify user account information in established master domain',
+  'Welcome to CBX!',
+  '<p font-size:="" style="padding-left:2em;font-family:">
+  Dear User,</p>
+<p font-size:="" style="padding-left:2em;font-family:">
+  Your CBX account is now ready.You can start using the service with the following URL and login details:</p>
+<p font-size:="" style="padding-left:2em;font-family:">
+  URL: <a href="${(serverUrl)!""}" style="font-family: Calibri, sans-serif; font-size: 14px;">${(serverUrl)!""}</a><br />
+  User ID: ${(reqDoc.loginId)!""}<br />
+  Password: (To be provided to you in a separate email)</p>
+<p font-size:="" style="padding-left:2em;font-family:">
+  Thank you for your attention.</p>
+<p font-size:="" style="padding-left:2em;font-family:">
+  Best Regards,<br />
+  CBX Administrator</p>',
+  0, 0, 1,
+  0, 0, 0,
+  'External Domain Account Activation Notification Profile',
+  '/', 0, 1, 'system', 'system');
+
+--// Setup notification profile for External Domain Account Password notiifcation
+INSERT INTO cnt_notification_profile (
+  id, revision, entity_version, domain_id, version,
+  doc_status, editing_status, create_user, created_on,
+  profile_name,
+  profile_desc,
+  subject,
+  content,
+  priority, inbox_enabled, email_enabled,
+  to_apl_requester, to_apl_current_approver, to_apl_next_approver,
+  ref_no,
+  hub_domain_id, is_for_reference, is_latest, create_user_name, update_user_name
+) VALUES (
+  Sys_Guid(), 1, 1, '/', 1,
+  'active', 'confirmed', 'system', SYSDATE,
+  'External Domain Account Password Notification Profile',
+  'Notification profile to notify user account password in established master domain',
+  'Welcome to CBX!',
+  '<p font-size:="" style="padding-left:2em;font-family:">
+  Dear User,</p>
+<p font-size:="" style="padding-left:2em;font-family:">
+  Please find below a temporary password for your CBX account. Please use this with the URL &amp; Login ID provided in our previous email to start using the application:</p>
+<p font-size:="" style="padding-left:2em;font-family:">
+  Password: ${(password)!""}</p>
+<p font-size:="" style="padding-left:2em;font-family:">
+  Thank you for your attention.</p>
+<p font-size:="" style="padding-left:2em;font-family:">
+  Best Regards,<br />
+  CBX Administrator</p>',
+  0, 0, 1,
+  0, 0, 0,
+  'External Domain Account Password Notification Profile',
+  '/', 0, 1, 'system', 'system');
+
+--//END: CNT-10964 (S60)
+
+
 COMMIT;   
