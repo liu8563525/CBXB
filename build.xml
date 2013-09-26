@@ -109,6 +109,7 @@
             <entry key="target.path" value="${gen.target.path}"/>
             <entry key="template.path" value="${gen.template.path}"/>
             <entry key="linguals" value="${gen.linguals}"/>
+            <entry key="excel.directory" value="${gen.excel.directory}"/>
             <entry key="resource.ds1.domainId" value="${gen.domainId}"/>
             <entry key="resource.ds1.resourceName" value="${gen.db.resourceName}"/>
             <entry key="resource.ds1.xaDataSourceClassName" value="${gen.db.xaDataSourceClassName}"/>
