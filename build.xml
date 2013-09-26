@@ -45,12 +45,9 @@
     </path>
 
     <target name="clean">
-        <mkdir dir="${output.dir}"/>
         <delete includeemptydirs="false">
             <fileset dir="${output.dir}" includes="**/*"/>
         </delete>
-        
-        <mkdir dir="${working.dir}"/>
         <delete includeemptydirs="false">
             <fileset dir="${working.dir}" includes="**/*"/>
         </delete>
@@ -103,7 +100,6 @@
                       comment="AUTO GENERATED. To amend, please edit settings/generator.properties" >
             <entry key="mode" value="${gen.mode}"/>
             <entry key="module" value="${module}"/>
-            <entry key="excel.directory" value="${gen.excel.directory}"/>
             <entry key="target" value="${target}"/>
             <entry key="reporting.domainId" value="${gen.reporting.domainId}"/>
             <entry key="reporting.module" value="${gen.reporting.module}"/>
@@ -880,4 +876,17 @@
             <jvmarg value="-Dlog4j.configuration=file:${conf.dir}/log4j_dataMigration.properties"/>
         </java>
     </target>
+
+    <target name="-genCustomizeAction" description="Generate the Customize Action" depends="clean">
+           <java classname="com.core.cbx.generator.CustomActionGenerator" fork="true" maxmemory="512m">
+                <classpath refid="project.class.path"/>
+                <jvmarg value="-Dgenerator.domainId=${projectDomain}"/>
+            </java>
+    </target>
+    <target name="genCustomizeAction" description="Generate the Customize Action">
+            <antcall target="-genCustomizeAction">
+                <param name="projectDomain" value="${gen.single.projectDomain}"/>
+            </antcall>
+    </target>
+
 </project>

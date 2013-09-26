@@ -634,3 +634,40 @@ FROM CNT_NOTIFICATION_PROFILE NOTP;
           DECODE (cfc.is_default,  1, 'Yes',  0, 'No',  NULL, 'No'),
           DECODE (cfc.is_disabled,  1, 'Yes',  0, 'No',  NULL, 'No')
      FROM cnt_fact_contact cfc;
+
+
+  CREATE OR REPLACE FORCE VIEW CNT_V_MPO_ITEM_MAPPED (ID, REVISION, ENTITY_VERSION, DOMAIN_ID, MPO_ID, ITEM_ID, QUOTATION_ID, ITEM_NO, VENDOR_ITEM_NO, CUST_ITEM_NO, ITEM_DESC, IS_SET, LOT_NO, MERCHANDISE_HIERARCHY_ID, SPEC_VERSION, SPEC_ID, PRICE, INSTRUCTIONS, QTY, TOTAL_AMT, ASSORT_QTY, UOM, MARKET, CHANNEL, DELIVERY_FROM, DELIVERY_TO, COUNTRY_OF_ORIGIN, CONTAINER_TYPE, COUNT_OF_CONTAINER, TRUCK_TYPE, COUNT_OF_TRUCK, CBM, V_IS_SET) AS
+  SELECT mpi.ID,
+    mpi.revision,
+    mpi.entity_version,
+    mpi.domain_id,
+    mpi.mpo_id,
+    mpi.item_id,
+    mpi.quotation_id,
+    mpi.item_no,
+    mpi.vendor_item_no,
+    mpi.cust_item_no,
+    mpi.item_desc,
+    mpi.is_set,
+    mpi.lot_no,
+    mpi.merchandise_hierarchy_id,
+    mpi.spec_version,
+    mpi.spec_id,
+    mpi.price,
+    mpi.instructions,
+    mpi.qty,
+    mpi.total_amt,
+    mpi.assort_qty,
+    mpi.uom,
+    mpi.market,
+    mpi.channel,
+    mpi.delivery_from,
+    mpi.delivery_to,
+    mpi.country_of_origin,
+    mpi.container_type,
+    mpi.count_of_container,
+    mpi.truck_type,
+    mpi.count_of_truck,
+    mpi.cbm,
+    DECODE (mpi.is_set, 0, '', 1, 'Set')
+  FROM cnt_mpo_item mpi;
