@@ -982,5 +982,91 @@ INSERT INTO cnt_notification_profile (
 
 --//END: CNT-10964 (S60)
 
+-------------------------CNT-10889 start--------------------------------------------------------------------------
+INSERT INTO cnt_codelist 
+(ID, REVISION, ENTITY_VERSION, DOMAIN_ID, PARENT_ID, SEQ_NO, CODE, NAME, DISABLED, INTERNAL_SEQ_NO, REF_NO, HUB_DOMAIN_ID, IS_FOR_REFERENCE)
+SELECT
+lower(sys_guid()), 1, 1, '/', (SELECT ID FROM cnt_codelist_book WHERE name = 'CONTACT_TYPE' AND domain_id = '/' AND is_latest = 1),
+(SELECT MAX(seq_no)+1 FROM cnt_codelist WHERE parent_id = (SELECT ID FROM cnt_codelist_book WHERE name = 'CONTACT_TYPE' AND domain_id = '/' AND is_latest = 1)),
+'NOTIFIED', 'Notified User', 0,
+(SELECT MAX(internal_seq_no)+1 FROM cnt_codelist WHERE parent_id = (SELECT ID FROM cnt_codelist_book WHERE name = 'CONTACT_TYPE' AND domain_id = '/' AND is_latest = 1)),
+'NOTIFIED', '/', 0
+FROM dual
+WHERE NOT EXISTS (SELECT 1 FROM cnt_codelist WHERE domain_id = '/' AND code = 'NOTIFIED');
+
+INSERT INTO ctm_codelist_book
+(ID, DOMAIN_ID, REF_ENTITY_NAME)
+SELECT 
+(SELECT ID FROM cnt_codelist WHERE CODE = 'NOTIFIED' AND DOMAIN_ID = '/'),
+'/', 'Codelist'
+FROM dual
+WHERE NOT EXISTS 
+(SELECT 1 FROM ctm_codelist_book WHERE ID = (SELECT ID FROM cnt_codelist WHERE CODE = 'NOTIFIED' AND DOMAIN_ID = '/'));
+
+INSERT INTO cnt_domain_attribute
+(ID, REVISION, ENTITY_VERSION, DOMAIN_ID, KEY, VALUE, CATEGORY, TYPE, DESCRIPTION, INTERNAL_SEQ_NO, HUB_DOMAIN_ID, IS_FOR_REFERENCE)
+SELECT
+lower(sys_guid()), 0, 1, '/', 'system.doc.contacts.Cust', 'custContact', 'System settings', 0, 'CustContact',
+(SELECT MAX(INTERNAL_SEQ_NO)+1 FROM cnt_domain_attribute), '/', 0
+FROM dual
+WHERE NOT EXISTS (SELECT 1 FROM cnt_domain_attribute WHERE domain_id = '/' AND KEY = 'system.doc.contacts.Cust');
+
+INSERT INTO cnt_domain_attribute
+(ID, REVISION, ENTITY_VERSION, DOMAIN_ID, KEY, VALUE, CATEGORY, TYPE, DESCRIPTION, INTERNAL_SEQ_NO, HUB_DOMAIN_ID, IS_FOR_REFERENCE)
+SELECT
+lower(sys_guid()), 0, 1, '/', 'system.doc.contacts.Fact', 'factContact', 'System settings', 0, 'FactContact',
+(SELECT MAX(INTERNAL_SEQ_NO)+1 FROM cnt_domain_attribute), '/', 0
+From dual
+WHERE NOT EXISTS (SELECT 1 FROM cnt_domain_attribute WHERE DOMAIN_ID = '/' AND KEY = 'system.doc.contacts.Fact');
+
+INSERT INTO cnt_domain_attribute
+(ID, REVISION, ENTITY_VERSION, DOMAIN_ID, KEY, VALUE, CATEGORY, TYPE, DESCRIPTION, INTERNAL_SEQ_NO, HUB_DOMAIN_ID, IS_FOR_REFERENCE)
+SELECT
+lower(sys_guid()), 0, 1, '/', 'system.doc.contacts.Vendor', 'contacts', 'System settings', 0, 'VendorContact',
+(SELECT MAX(INTERNAL_SEQ_NO)+1 FROM cnt_domain_attribute), '/', 0
+From dual
+WHERE NOT EXISTS (SELECT 1 FROM cnt_domain_attribute WHERE DOMAIN_ID = '/' AND KEY = 'system.doc.contacts.Vendor');
+
+INSERT INTO cnt_domain_attribute
+(ID, REVISION, ENTITY_VERSION, DOMAIN_ID, KEY, VALUE, CATEGORY, TYPE, DESCRIPTION, INTERNAL_SEQ_NO, HUB_DOMAIN_ID, IS_FOR_REFERENCE)
+SELECT
+lower(sys_guid()), 0, 1, '/', 'system.doc.contacts.Vpo', 'vpoContact', 'System settings', 0, 'VpoContact',
+(SELECT MAX(INTERNAL_SEQ_NO)+1 FROM cnt_domain_attribute), '/', 0
+From dual
+WHERE NOT EXISTS (SELECT 1 FROM cnt_domain_attribute WHERE DOMAIN_ID = '/' AND KEY = 'system.doc.contacts.Vpo');
+
+INSERT INTO cnt_domain_attribute
+(ID, REVISION, ENTITY_VERSION, DOMAIN_ID, KEY, VALUE, CATEGORY, TYPE, DESCRIPTION, INTERNAL_SEQ_NO, HUB_DOMAIN_ID, IS_FOR_REFERENCE)
+SELECT
+lower(sys_guid()), 0, 1, '/', 'system.doc.contacts.Commit', 'commitContact', 'System settings', 0, 'CommitContact',
+(SELECT MAX(INTERNAL_SEQ_NO)+1 FROM cnt_domain_attribute), '/', 0
+From dual
+WHERE NOT EXISTS (SELECT 1 FROM cnt_domain_attribute WHERE DOMAIN_ID = '/' AND KEY = 'system.doc.contacts.Commit');
+
+INSERT INTO cnt_domain_attribute
+(ID, REVISION, ENTITY_VERSION, DOMAIN_ID, KEY, VALUE, CATEGORY, TYPE, DESCRIPTION, INTERNAL_SEQ_NO, HUB_DOMAIN_ID, IS_FOR_REFERENCE)
+SELECT
+lower(sys_guid()), 0, 1, '/', 'system.doc.contacts.Cpo', 'cpoContact', 'System settings', 0, 'CpoContact',
+(SELECT MAX(INTERNAL_SEQ_NO)+1 FROM cnt_domain_attribute), '/', 0
+From dual
+WHERE NOT EXISTS (SELECT 1 FROM cnt_domain_attribute WHERE DOMAIN_ID = '/' AND KEY = 'system.doc.contacts.Cpo');
+
+INSERT INTO cnt_domain_attribute
+(ID, REVISION, ENTITY_VERSION, DOMAIN_ID, KEY, VALUE, CATEGORY, TYPE, DESCRIPTION, INTERNAL_SEQ_NO, HUB_DOMAIN_ID, IS_FOR_REFERENCE)
+SELECT
+lower(sys_guid()), 0, 1, '/', 'system.doc.contacts.CustInv', 'invContact', 'System settings', 0, 'CustInvContact',
+(SELECT MAX(INTERNAL_SEQ_NO)+1 FROM cnt_domain_attribute), '/', 0
+From dual
+WHERE NOT EXISTS (SELECT 1 FROM cnt_domain_attribute WHERE DOMAIN_ID = '/' AND KEY = 'system.doc.contacts.CustInv');
+
+INSERT INTO cnt_domain_attribute
+(ID, REVISION, ENTITY_VERSION, DOMAIN_ID, KEY, VALUE, CATEGORY, TYPE, DESCRIPTION, INTERNAL_SEQ_NO, HUB_DOMAIN_ID, IS_FOR_REFERENCE)
+SELECT
+lower(sys_guid()), 0, 1, '/', 'system.doc.contacts.Offersheet', 'osContact', 'System settings', 0, 'OffersheetContact',
+(SELECT MAX(INTERNAL_SEQ_NO)+1 FROM cnt_domain_attribute), '/', 0
+From dual
+WHERE NOT EXISTS (SELECT 1 FROM cnt_domain_attribute WHERE DOMAIN_ID = '/' AND KEY = 'system.doc.contacts.Offersheet');
+--------------------------CNT-10889 end------------------------------------------------------------------------------------------------------------------
+
 
 COMMIT;   
