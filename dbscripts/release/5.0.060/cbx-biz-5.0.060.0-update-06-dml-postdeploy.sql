@@ -468,7 +468,7 @@ I_DOMAIN_ID VARCHAR2(20) :='/';
    IS
       SELECT ID, CREATED_ON, REF_NO FROM CNT_DOMAIN
       WHERE (REF_NO NOT LIKE 'S__-0%' OR REF_NO IS NULL)
-      AND IS_LATEST ='1' AND DOMAIN_ID ='/';            
+      AND DOMAIN_ID ='/';            
 BEGIN
 FOR SELECT_RECORD IN CSELECT
 LOOP 
@@ -478,7 +478,7 @@ LOOP
       UPDATE CNT_SEQ_DEF SET NEXT_VAL = NEXT_VAL +1 WHERE SEQ_ID= 'CBX_SEQ_DOMAIN_REF_NO' AND DOMAIN_ID = I_DOMAIN_ID;
     ELSE
     SELECT  NVL(MAX(TO_NUMBER( SUBSTR (REF_NO,5,6))),0) INTO MAX_VAL
-    FROM CNT_DOMAIN WHERE REF_NO LIKE 'S__-0%' AND DOMAIN_ID =I_DOMAIN_ID AND IS_LATEST=1 AND TO_CHAR(CREATED_ON,'YY')=TO_CHAR(SELECT_RECORD.CREATED_ON,'YY');
+    FROM CNT_DOMAIN WHERE REF_NO LIKE 'S__-0%' AND DOMAIN_ID =I_DOMAIN_ID AND TO_CHAR(CREATED_ON,'YY')=TO_CHAR(SELECT_RECORD.CREATED_ON,'YY');
     UPDATE CNT_DOMAIN SET REF_NO = 'S' || TO_CHAR (CREATED_ON,'YY') || '-'
       || LPAD(TO_CHAR(MAX_VAL+1),6,'0')  
        WHERE ID = SELECT_RECORD.ID;
@@ -486,8 +486,7 @@ LOOP
 END LOOP;
     END;
 /
-UPDATE CNT_DOMAIN NOTLATEST SET NOTLATEST.REF_NO = (SELECT LATEST.REF_NO FROM CNT_DOMAIN LATEST WHERE LATEST.id = NOTLATEST.id AND LATEST.IS_LATEST =1 
-AND DOMAIN_ID = '/') WHERE NOTLATEST.IS_LATEST = 0 AND NOTLATEST.DOMAIN_ID ='/';
+
 ---------------------------------trigger /event---------------------------------------------------------
 DECLARE
 MAX_VAL VARCHAR2(20);
@@ -636,7 +635,7 @@ I_DOMAIN_ID VARCHAR2(20) :='/';
    IS
       SELECT ID, CREATED_ON, REF_NO FROM CNT_NOTIFICATION_PROFILE
       WHERE (REF_NO NOT LIKE 'S__-0%' OR REF_NO IS NULL)
-      AND IS_LATEST ='1' AND DOMAIN_ID ='/';            
+      AND DOMAIN_ID ='/';            
 BEGIN
 FOR SELECT_RECORD IN CSELECT
 LOOP 
@@ -646,7 +645,7 @@ LOOP
       UPDATE CNT_SEQ_DEF SET NEXT_VAL = NEXT_VAL +1 WHERE SEQ_ID= 'CBX_SEQ_NOTIFICATION_REF_NO' AND DOMAIN_ID = I_DOMAIN_ID;
     ELSE
     SELECT  NVL(MAX(TO_NUMBER( SUBSTR (REF_NO,5,6))),0) INTO MAX_VAL
-    FROM CNT_NOTIFICATION_PROFILE WHERE REF_NO LIKE 'S__-0%' AND DOMAIN_ID =I_DOMAIN_ID AND IS_LATEST=1 AND TO_CHAR(CREATED_ON,'YY')=TO_CHAR(SELECT_RECORD.CREATED_ON,'YY');
+    FROM CNT_NOTIFICATION_PROFILE WHERE REF_NO LIKE 'S__-0%' AND DOMAIN_ID =I_DOMAIN_ID AND TO_CHAR(CREATED_ON,'YY')=TO_CHAR(SELECT_RECORD.CREATED_ON,'YY');
     UPDATE CNT_NOTIFICATION_PROFILE SET REF_NO = 'S' || TO_CHAR (CREATED_ON,'YY') || '-'
       || LPAD(TO_CHAR(MAX_VAL+1),6,'0')  
        WHERE ID = SELECT_RECORD.ID;
@@ -654,8 +653,6 @@ LOOP
 END LOOP;
     END;
 /
-UPDATE CNT_NOTIFICATION_PROFILE NOTLATEST SET NOTLATEST.REF_NO = (SELECT LATEST.REF_NO FROM CNT_NOTIFICATION_PROFILE LATEST WHERE LATEST.profile_name = NOTLATEST.profile_name AND LATEST.IS_LATEST =1 
-AND DOMAIN_ID = '/') WHERE NOTLATEST.IS_LATEST = 0 AND NOTLATEST.DOMAIN_ID ='/';
 ---------------------------------------role---------------------------------------------------
 DECLARE
 MAX_VAL VARCHAR2(20);
@@ -1067,6 +1064,46 @@ lower(sys_guid()), 0, 1, '/', 'system.doc.contacts.Offersheet', 'osContact', 'Sy
 From dual
 WHERE NOT EXISTS (SELECT 1 FROM cnt_domain_attribute WHERE DOMAIN_ID = '/' AND KEY = 'system.doc.contacts.Offersheet');
 --------------------------CNT-10889 end------------------------------------------------------------------------------------------------------------------
+--//BEG:CNT-10931-----------------------------------------------------------------------
+--------------------------------------------------custInv-------------------------------------------------------------
+--item------------------
+INSERT INTO CNT_RELATED_DOC_PROFILE (ID, REVISION, ENTITY_VERSION, DOMAIN_ID, VERSION, CREATE_USER, UPDATE_USER, CREATED_ON, UPDATED_ON, 
+MODULE, VIEW_ID, DISABLED, SEQUENCE, IS_DEFAULT, HUB_DOMAIN_ID, IS_FOR_REFERENCE, CREATE_USER_NAME, UPDATE_USER_NAME)
+SELECT LOWER(SYS_GUID()), 0, 1, '/', 1, 'system', 'system', SYSDATE, SYSDATE, 'custInv', (SELECT ID FROM CNT_VIEW WHERE NAME='itemActiveView' AND CREATE_USER_NAME = 'DUMMY_SYSTEM_ID' AND DOMAIN_ID = '/' AND BASE_VIEW_ID IS NULL),
+0, (SELECT nvl(MAX(SEQUENCE), 0) + 1 FROM CNT_RELATED_DOC_PROFILE WHERE MODULE = 'custInv'), '1', '/', 0, 'system', 'system' FROM DUAL WHERE NOT EXISTS ( 
+SELECT 1 FROM CNT_RELATED_DOC_PROFILE WHERE DOMAIN_ID='/' AND MODULE = 'custInv' AND VIEW_ID=(SELECT ID FROM CNT_VIEW WHERE NAME='itemActiveView' AND CREATE_USER_NAME = 'DUMMY_SYSTEM_ID' AND DOMAIN_ID = '/' AND BASE_VIEW_ID IS NULL));
+--item------------------
+--shipmentAdvice--------
+INSERT INTO CNT_RELATED_DOC_PROFILE (ID, REVISION, ENTITY_VERSION, DOMAIN_ID, VERSION, CREATE_USER, UPDATE_USER, CREATED_ON, UPDATED_ON, 
+MODULE, VIEW_ID, DISABLED, SEQUENCE, IS_DEFAULT, HUB_DOMAIN_ID, IS_FOR_REFERENCE, CREATE_USER_NAME, UPDATE_USER_NAME)
+SELECT LOWER(SYS_GUID()), 0, 1, '/', 1, 'system', 'system', SYSDATE, SYSDATE, 'custInv', (SELECT ID FROM CNT_VIEW WHERE NAME='shipmentAdviceActiveView' AND CREATE_USER_NAME = 'DUMMY_SYSTEM_ID' AND DOMAIN_ID = '/' AND BASE_VIEW_ID IS NULL),
+0, (SELECT nvl(MAX(SEQUENCE), 0) + 1 FROM CNT_RELATED_DOC_PROFILE WHERE MODULE = 'custInv'), '1', '/', 0, 'system', 'system' FROM DUAL WHERE NOT EXISTS ( 
+SELECT 1 FROM CNT_RELATED_DOC_PROFILE WHERE DOMAIN_ID='/' AND MODULE = 'custInv' AND VIEW_ID=(SELECT ID FROM CNT_VIEW WHERE NAME='shipmentAdviceActiveView' AND CREATE_USER_NAME = 'DUMMY_SYSTEM_ID' AND DOMAIN_ID = '/' AND BASE_VIEW_ID IS NULL));
+--shipmentAdvice--------
+--------------------------------------------------custInv-------------------------------------------------------------
 
+-------------shipmentAdvice STA---------------------
+--custInv--------------
+INSERT INTO CNT_RELATED_DOC_PROFILE (ID, REVISION, ENTITY_VERSION, DOMAIN_ID, VERSION, CREATE_USER, UPDATE_USER, CREATED_ON, UPDATED_ON, MODULE, VIEW_ID, DISABLED, SEQUENCE, IS_DEFAULT)
+SELECT LOWER(SYS_GUID()), 0, 1, '/', 1, 'system', 'system', SYSDATE, SYSDATE, 'shipmentAdvice', (SELECT ID FROM CNT_VIEW WHERE NAME='custInvQtyByItemView' AND CREATE_USER_NAME = 'DUMMY_SYSTEM_ID' AND DOMAIN_ID = '/'), '0', '1', '1' FROM DUAL
+WHERE NOT EXISTS ( SELECT 1 FROM CNT_RELATED_DOC_PROFILE WHERE DOMAIN_ID='/' AND MODULE = 'shipmentAdvice' AND VIEW_ID=(SELECT ID FROM CNT_VIEW WHERE NAME='custInvQtyByItemView' AND CREATE_USER_NAME = 'DUMMY_SYSTEM_ID' AND DOMAIN_ID = '/'));
+------------shipmentAdvice END----------------------
+
+-------------Data patch for Vendor Invoice & Customer Invoice
+update cnt_vi_shipment_item vii 
+set item_id = (select vi.item_id from cnt_vpo_ship_dtl vsd left join cnt_vpo_item vi on vi.id = vsd.vpo_item_id where vsd.id = vii.vpo_ship_dtl_id  ) , 
+item_desc = (select vi.item_desc  from cnt_vpo_ship_dtl vsd left join cnt_vpo_item vi on vi.id = vsd.vpo_item_id where vsd.id = vii.vpo_ship_dtl_id  ),
+is_set =  (select vi.is_set  from cnt_vpo_ship_dtl vsd left join cnt_vpo_item vi on vi.id = vsd.vpo_item_id where vsd.id = vii.vpo_ship_dtl_id  ),
+ lot_no =   (select vi.lot_no  from cnt_vpo_ship_dtl vsd left join cnt_vpo_item vi on vi.id = vsd.vpo_item_id where vsd.id = vii.vpo_ship_dtl_id  )
+  where vpo_ship_dtl_id is not null and item_id is null;
+
+update cnt_ci_item cii
+set item_id = (select cpi.item_id from cnt_cpo_ship_dtl csd left join cnt_cpo_item cpi on cpi.id =csd.cpo_item_id where csd.id = cii.cpo_ship_dtl_id),
+item_desc = (select cpi.item_desc from cnt_cpo_ship_dtl csd left join cnt_cpo_item cpi on cpi.id =csd.cpo_item_id where csd.id = cii.cpo_ship_dtl_id),
+is_set = (select cpi.is_set from cnt_cpo_ship_dtl csd left join cnt_cpo_item cpi on cpi.id =csd.cpo_item_id where csd.id = cii.cpo_ship_dtl_id),
+lot_no = (select cpi.lot_no from cnt_cpo_ship_dtl csd left join cnt_cpo_item cpi on cpi.id =csd.cpo_item_id where csd.id = cii.cpo_ship_dtl_id)
+where cii.cpo_ship_dtl_id is not null and cii.item_id is null;
+
+--//END:CNT-10931-----------------------------------------------------------------------
 
 COMMIT;   
