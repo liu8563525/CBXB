@@ -425,20 +425,21 @@ CREATE OR REPLACE FORCE VIEW CNT_V_VQ_MAPPED (ID, REVISION, ENTITY_VERSION, DOMA
           cvsd.vpo_id, cvsd.vpo_item_id, cvsd.vpo_ship_id, cvsd.is_set,
           cvsd.cpo_ship_dtl_id, cvsd.remarks, cvsd.qty, cvsd.pack_type, cvsd.pack_type_name,
           cvsd.qty_type, cvsd.internal_seq_no,
-          NVL ((SELECT NVL (cvsd.qty, 0) - NVL (SUM (csi.sent_qty), 0)
-                  FROM cnt_ship_item csi, cnt_ship cs
-                 WHERE csi.vpo_id = vpo.ID
-                   AND csi.vpo_ship_dtl_id = cvsd.ID
-                   AND csi.ship_id = cs.ID
-                   AND cs.doc_status NOT IN ('canceled', 'inactive')),
+          NVL ((SELECT NVL (CVSD.QTY, 0) - NVL (SUM (CSI.SENT_QTY), 0)
+              FROM CNT_SHIPMENT_ADVICE_ITEM CSI,
+                   CNT_SHIPMENT_ADVICE CS
+              WHERE CSI.VENDOR_PO_ID=VPO.ID
+              AND CSI.VENDOR_PO_SHIPMENT_ITEM_ID = CVSD.ID
+              AND CSI.PARENT_ID=CS.ID
+              AND CS.DOC_STATUS NOT  IN ('canceled', 'inactive') ),
                0
               )
      FROM cnt_vpo_ship_dtl cvsd LEFT JOIN cnt_vpo vpo ON cvsd.vpo_id = vpo.ID;
      
-  CREATE OR REPLACE FORCE VIEW CNT_V_VPO_ITEM_MAPPED (ID, REVISION, ENTITY_VERSION, DOMAIN_ID, VPO_ID, CPO_ID, CPO_ITEM_ID, ITEM_FILE_ID, ITEM_ID, ITEM_NO, IS_SET, ITEM_DESC, SPEC_VERSION, VARIANCE, SPEC_ID, SELL_PRICE, BUY_PRICE, BUY_COST, QUOTE_NO, QUOTE_ID, OFFER_SHEET_ID, OFFER_SHEET_NO, UOM, UOM_NAME, PLANED_QTY, SHIP_QTY, TOTAL_AMT, MERCHANDISE_HIERARCHY_ID, MARKET, CHANNEL, FACT_ID, REMARKS, HTS_CODE, COUNTRY_OF_SHIPMENT, PORT_OF_LOADING, MOQ, QTY_PER_EXPORT_CARTON, QTY_PER_INNER_CARTON, L, W, H, GW, NW, SPEC_INSTRUCTIONS, VENDOR_ITEM_NO, CBM, INTERNAL_SEQ_NO, LOT_NO, V_IS_SET, QTY, OS_QTY) AS 
+  CREATE OR REPLACE FORCE VIEW CNT_V_VPO_ITEM_MAPPED (ID, REVISION, ENTITY_VERSION, DOMAIN_ID, VPO_ID, CPO_ID, CPO_ITEM_ID, MPO_ID, MPO_ITEM_ID, ITEM_FILE_ID, ITEM_ID, ITEM_NO, IS_SET, ITEM_DESC, SPEC_VERSION, VARIANCE, SPEC_ID, SELL_PRICE, BUY_PRICE, BUY_COST, QUOTE_NO, QUOTE_ID, OFFER_SHEET_ID, OFFER_SHEET_NO, UOM, UOM_NAME, PLANED_QTY, SHIP_QTY, TOTAL_AMT, MERCHANDISE_HIERARCHY_ID, MARKET, CHANNEL, FACT_ID, REMARKS, HTS_CODE, COUNTRY_OF_SHIPMENT, PORT_OF_LOADING, MOQ, QTY_PER_EXPORT_CARTON, QTY_PER_INNER_CARTON, L, W, H, GW, NW, SPEC_INSTRUCTIONS, VENDOR_ITEM_NO, CBM, INTERNAL_SEQ_NO, LOT_NO, V_IS_SET, QTY, OS_QTY) AS 
   SELECT
  cvi.ID,cvi.revision,cvi.entity_version,cvi.domain_id,cvi.vpo_id,
- cvi.cpo_id,cvi.cpo_item_id,cvi.item_file_id,cvi.item_id,cvi.item_no,
+ cvi.cpo_id,cvi.cpo_item_id,cvi.mpo_id,cvi.mpo_item_id,cvi.item_file_id,cvi.item_id,cvi.item_no,
  cvi.is_set,cvi.item_desc,cvi.spec_version,cvi.VARIANCE,cvi.spec_id,
  cvi.sell_price,cvi.buy_price,cvi.buy_cost,cvi.quote_no,cvi.quote_id,
  cvi.offer_sheet_id,cvi.offer_sheet_no,cvi.uom,cvi.uom_name,cvi.planed_qty,
@@ -447,18 +448,16 @@ CREATE OR REPLACE FORCE VIEW CNT_V_VQ_MAPPED (ID, REVISION, ENTITY_VERSION, DOMA
  cvi.moq,cvi.qty_per_export_carton,cvi.qty_per_inner_carton,cvi.l,cvi.w,
  cvi.h,cvi.gw,cvi.nw,cvi.spec_instructions,cvi.vendor_item_no,
  cvi.cbm,cvi.internal_seq_no,cvi.lot_no,DECODE (cvi.is_set,  0, 'No',  1, 'Yes'),NVL (cvi.planed_qty, 0),
- NVL ((SELECT NVL (cvi.ship_qty, 0) - NVL (SUM (csi.sent_qty), 0)
-       FROM cnt_ship_item csi,
-            cnt_ship cs,
-            cnt_vpo_ship_dtl cvsd,
-            cnt_vpo_ship cvs
-            WHERE  csi.vpo_id = cvi.vpo_id
-               AND csi.vpo_ship_dtl_id = cvsd.ID
-               AND csi.ship_id = cs.ID
-               AND cvsd.vpo_id = cvi.vpo_id
-               AND cvsd.vpo_item_id = cvi.ID
-               AND cvsd.vpo_ship_id = cvs.ID
-               AND cs.doc_status NOT IN ('canceled', 'inactive')),0)
+ NVL ((SELECT NVL (CVI.SHIP_QTY, 0) - NVL (SUM (CSI.SENT_QTY), 0)
+       FROM CNT_SHIPMENT_ADVICE_ITEM CSI,
+            CNT_SHIPMENT_ADVICE CS,
+            CNT_VPO_SHIP_DTL CVSD,
+            CNT_VPO_SHIP CVS
+       WHERE CSI.VENDOR_PO_SHIPMENT_ITEM_ID = CVSD.ID
+       AND CVSD.VPO_ITEM_ID    = CVI.ID
+       AND CSI.VENDOR_PO_ID=CVI.VPO_ID
+       AND CSI.PARENT_ID=CS.ID
+       AND CS.DOC_STATUS NOT IN ('canceled', 'inactive')),0)
  FROM cnt_vpo_item cvi;
  
  
@@ -634,7 +633,6 @@ FROM CNT_NOTIFICATION_PROFILE NOTP;
           DECODE (cfc.is_default,  1, 'Yes',  0, 'No',  NULL, 'No'),
           DECODE (cfc.is_disabled,  1, 'Yes',  0, 'No',  NULL, 'No')
      FROM cnt_fact_contact cfc;
-
 
   CREATE OR REPLACE FORCE VIEW CNT_V_MPO_ITEM_MAPPED (ID, REVISION, ENTITY_VERSION, DOMAIN_ID, MPO_ID, ITEM_ID, QUOTATION_ID, ITEM_NO, VENDOR_ITEM_NO, CUST_ITEM_NO, ITEM_DESC, IS_SET, LOT_NO, MERCHANDISE_HIERARCHY_ID, SPEC_VERSION, SPEC_ID, PRICE, INSTRUCTIONS, QTY, TOTAL_AMT, ASSORT_QTY, UOM, MARKET, CHANNEL, DELIVERY_FROM, DELIVERY_TO, COUNTRY_OF_ORIGIN, CONTAINER_TYPE, COUNT_OF_CONTAINER, TRUCK_TYPE, COUNT_OF_TRUCK, CBM, V_IS_SET) AS
   SELECT mpi.ID,
