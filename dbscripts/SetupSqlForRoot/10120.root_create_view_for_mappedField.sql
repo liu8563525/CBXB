@@ -425,12 +425,13 @@ CREATE OR REPLACE FORCE VIEW CNT_V_VQ_MAPPED (ID, REVISION, ENTITY_VERSION, DOMA
           cvsd.vpo_id, cvsd.vpo_item_id, cvsd.vpo_ship_id, cvsd.is_set,
           cvsd.cpo_ship_dtl_id, cvsd.remarks, cvsd.qty, cvsd.pack_type, cvsd.pack_type_name,
           cvsd.qty_type, cvsd.internal_seq_no,
-          NVL ((SELECT NVL (cvsd.qty, 0) - NVL (SUM (csi.sent_qty), 0)
-                  FROM cnt_ship_item csi, cnt_ship cs
-                 WHERE csi.vpo_id = vpo.ID
-                   AND csi.vpo_ship_dtl_id = cvsd.ID
-                   AND csi.ship_id = cs.ID
-                   AND cs.doc_status NOT IN ('canceled', 'inactive')),
+          NVL ((SELECT NVL (CVSD.QTY, 0) - NVL (SUM (CSI.SENT_QTY), 0)
+              FROM CNT_SHIPMENT_ADVICE_ITEM CSI,
+                   CNT_SHIPMENT_ADVICE CS
+              WHERE CSI.VENDOR_PO_ID=VPO.ID
+              AND CSI.VENDOR_PO_SHIPMENT_ITEM_ID = CVSD.ID
+              AND CSI.PARENT_ID=CS.ID
+              AND CS.DOC_STATUS NOT  IN ('canceled', 'inactive') ),
                0
               )
      FROM cnt_vpo_ship_dtl cvsd LEFT JOIN cnt_vpo vpo ON cvsd.vpo_id = vpo.ID;
@@ -447,18 +448,16 @@ CREATE OR REPLACE FORCE VIEW CNT_V_VQ_MAPPED (ID, REVISION, ENTITY_VERSION, DOMA
  cvi.moq,cvi.qty_per_export_carton,cvi.qty_per_inner_carton,cvi.l,cvi.w,
  cvi.h,cvi.gw,cvi.nw,cvi.spec_instructions,cvi.vendor_item_no,
  cvi.cbm,cvi.internal_seq_no,cvi.lot_no,DECODE (cvi.is_set,  0, 'No',  1, 'Yes'),NVL (cvi.planed_qty, 0),
- NVL ((SELECT NVL (cvi.ship_qty, 0) - NVL (SUM (csi.sent_qty), 0)
-       FROM cnt_ship_item csi,
-            cnt_ship cs,
-            cnt_vpo_ship_dtl cvsd,
-            cnt_vpo_ship cvs
-            WHERE  csi.vpo_id = cvi.vpo_id
-               AND csi.vpo_ship_dtl_id = cvsd.ID
-               AND csi.ship_id = cs.ID
-               AND cvsd.vpo_id = cvi.vpo_id
-               AND cvsd.vpo_item_id = cvi.ID
-               AND cvsd.vpo_ship_id = cvs.ID
-               AND cs.doc_status NOT IN ('canceled', 'inactive')),0)
+ NVL ((SELECT NVL (CVI.SHIP_QTY, 0) - NVL (SUM (CSI.SENT_QTY), 0)
+       FROM CNT_SHIPMENT_ADVICE_ITEM CSI,
+            CNT_SHIPMENT_ADVICE CS,
+            CNT_VPO_SHIP_DTL CVSD,
+            CNT_VPO_SHIP CVS
+       WHERE CSI.VENDOR_PO_SHIPMENT_ITEM_ID = CVSD.ID
+       AND CVSD.VPO_ITEM_ID    = CVI.ID
+       AND CSI.VENDOR_PO_ID=CVI.VPO_ID
+       AND CSI.PARENT_ID=CS.ID
+       AND CS.DOC_STATUS NOT IN ('canceled', 'inactive')),0)
  FROM cnt_vpo_item cvi;
  
  
