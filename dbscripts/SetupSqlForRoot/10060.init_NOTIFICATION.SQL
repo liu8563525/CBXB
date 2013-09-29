@@ -487,3 +487,22 @@ INSERT INTO cnt_notification_profile (
   '/', 0, 1, 'system', 'system');
 
 --//END: CNT-10964 (S60)
+
+--CNT-10446 BEGIN----------
+
+INSERT INTO CNT_NOTIFICATION_PROFILE (
+  ID, REVISION, ENTITY_VERSION, DOMAIN_ID,  CREATE_USER, CREATED_ON,
+  PROFILE_NAME,  SUBJECT
+  , CONTENT
+  , PRIORITY, INBOX_ENABLED, EMAIL_ENABLED, TO_APL_REQUESTER, TO_APL_CURRENT_APPROVER, TO_APL_NEXT_APPROVER, TO_CONTACTS)
+SELECT LOWER(SYS_GUID()), 1, 1, '/', 'system', SYSDATE,
+  'VPO Send Notification Profile', 'CBX Notification - Vendor Purchase Order: ${(reqDoc.vpoNo)!""}'
+  , 'Dear ${(vendorName)!""} <#if vendorCode??>(${(vendorCode)!""})</#if>,</p><p style=''padding-left:2em;font-family:"Calibri","sans-serif"''>You received one Vendor Purchase Order for the following</p><p style=''padding-left:2em;font-family:"Calibri","sans-serif"''><table style=''border:0px;font-family:"Calibri","sans-serif";''><tr><td>Vendor Purchase Order No.:</td><td>${(reqDoc.vpoNo)!""}</td></tr><tr><td>Notes / Instructions:</td><td>${(reqDoc.instructions)!""}</td></tr></table></p><#if webSite??><p style=''padding-left:2em;font-family:"Calibri","sans-serif"''>Reply Vendor CBX Website URL: <a href="${(webSite)!""}">${(webSite)!""}</a></p></#if><p style=''font-family:"Calibri","sans-serif"''>Best Regards,<br/>${(sender)!""}</p>'
+  , 1, 1, 1, 0, 0, 0, 1 FROM DUAL
+  WHERE NOT EXISTS (SELECT 1 FROM CNT_NOTIFICATION_PROFILE WHERE PROFILE_NAME='VPO Send Notification Profile' AND DOMAIN_ID='/');
+
+INSERT INTO CNT_DOMAIN_ATTRIBUTE (ID, REVISION, ENTITY_VERSION, DOMAIN_ID, KEY, VALUE, CATEGORY, TYPE, DESCRIPTION)
+SELECT SYS_GUID(), 1, 1, '/', 'notification.vpo.send.template', (SELECT ID FROM CNT_NOTIFICATION_PROFILE WHERE PROFILE_NAME='VPO Send Notification Profile' AND DOMAIN_ID='/'), 'Notification Settings', 0, 'VPO send email notification template.' FROM DUAL 
+WHERE NOT EXISTS (SELECT 1 FROM CNT_DOMAIN_ATTRIBUTE WHERE KEY='notification.vpo.send.template' AND DOMAIN_ID='/');
+
+--CNT-10446 END----------
