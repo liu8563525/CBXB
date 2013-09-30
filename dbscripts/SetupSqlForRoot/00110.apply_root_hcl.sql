@@ -39,4 +39,3 @@ AND NOT EXISTS (
 	AND mn.HCL_NODE_ID = n.ID
 );
 
-COMMIT;
