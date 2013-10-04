@@ -4,12 +4,7 @@
     <property file="settings/generator.properties"/>
 
     <property name="jar-name" value="cbx-biz"/>
-    <property name="build-ver" value="5.0.059.0"/>
-
-    <property name="builder-used" value="cbx-builder-5.0.007.0"/>
-    <property name="common-used" value="cbx-common-5.0.003.0"/>
-    <property name="ui-used" value="cbx-ui-5.0.007.0"/>
-    <property name="core-used" value="cbx-core-5.0.007.0"/>
+    <property name="build-ver" value="5.0.060.0"/>
 
     <property name="release"  value="${basedir}/release"/>
     <property name="release.previous" value="RELEASE_5_0_035_0_PRE_RELEASE"/>
@@ -32,13 +27,6 @@
     <!--The active target generator, options (per system): system,searchView,popup-->
     <!--Multiple generators can be started up by contacting by comma.-->
     <!--if target type is per system, the module type is irrelevant-->
-
-    <macrodef name="debug_echo">
-        <attribute name="msg"/>
-        <sequential>
-            <echo message="@{msg}"/>
-        </sequential>
-    </macrodef>
 
     <path id="project.class.path">
         <fileset dir="${lib.dir}" includes="**/*.jar"/>
@@ -85,89 +73,13 @@
         <property name="gen.db.url"  value="${gen.single.url}"/>
     </target>
 
-    <target name="-genForm">
-        <debug_echo msg="Module: [${module}]"/>
-        <debug_echo msg="Target: [${target}]"/>
-        <debug_echo msg="Desc: [${desc}]"/>
-        <debug_echo msg="gen.db.user: [${gen.db.user}]"/>
-        <debug_echo msg="gen.db.pwd: [${gen.db.pwd}]"/>
-        <debug_echo msg="gen.db.url: [${gen.db.url}]"/>
-        <debug_echo msg="gen.target.path: [${gen.target.path}]"/>
-
-        <!-- delete existing builder.properties file -->
-        <delete file="${properties-file}"/>
-
-        <!-- create builder.properties for cbx-builder -->
-        <propertyfile file="builder.properties"
-                      comment="AUTO GENERATED. To amend, please edit settings/generator.properties" >
-            <entry key="mode" value="${gen.mode}"/>
-            <entry key="module" value="${module}"/>
-            <entry key="target" value="${target}"/>
-            <entry key="reporting.domainId" value="${gen.reporting.domainId}"/>
-            <entry key="reporting.module" value="${gen.reporting.module}"/>
-            <entry key="reporting.dbType" value="${gen.reporting.dbType}"/>
-            <entry key="target.path" value="${gen.target.path}"/>
-            <entry key="template.path" value="${gen.template.path}"/>
-            <entry key="linguals" value="${gen.linguals}"/>
-            <entry key="excel.directory" value="${gen.excel.directory}"/>
-            <entry key="resource.ds1.domainId" value="${gen.domainId}"/>
-            <entry key="resource.ds1.resourceName" value="${gen.db.resourceName}"/>
-            <entry key="resource.ds1.xaDataSourceClassName" value="${gen.db.xaDataSourceClassName}"/>
-            <entry key="resource.ds1.maxPoolSize" value="${gen.db.maxPoolSize}"/>
-            <entry key="resource.ds1.xaProperties.user" value="${gen.db.user}"/>
-            <entry key="resource.ds1.xaProperties.password" value="${gen.db.pwd}"/>
-            <entry key="resource.ds1.xaProperties.URL" value="${gen.db.url}"/>
-        </propertyfile>
-
-        <java classname="${main-class}" fork="true" maxmemory="512m">
-            <sysproperty key="system.disableDistributedCache" value="true"/>
-            <classpath refid="project.class.path"/>
-        </java>
-    </target>
-
-    <target name="-genSystem">
-        <!-- reuse genForm task -->
-        <antcall target="-genForm">
-            <param name="module" value=""/>
-            <param name="desc" value="${desc}"/>
-            <param name="target" value="${target}"/>  <!-- system, searchView, popuup, dataMappingRule -->
-        </antcall>
-    </target>
-
     <target name="-gen-system">
         <debug_echo msg="build-ver = ${build-ver}" />
         <debug_echo msg="lib.dir = ${lib.dir}" />
         <debug_echo msg="output.dir = ${output.dir}" />
         <debug_echo msg="main-class = ${main-class}" />
 
-        <antcall target="-genSystem">
-            <param name="desc" value="Generate System."/>
-            <param name="target" value="system"/>
-        </antcall>
-    </target>
-
-    <target name="-gen-search">
-        <debug_echo msg="build-ver = ${build-ver}" />
-        <debug_echo msg="lib.dir = ${lib.dir}" />
-        <debug_echo msg="output.dir = ${output.dir}" />
-        <debug_echo msg="main-class = ${main-class}" />
-
-        <antcall target="-genSystem">
-            <param name="desc" value="Generate Search View."/>
-            <param name="target" value="searchView"/>
-        </antcall>
-    </target>
-
-    <target name="-gen-popup">
-        <debug_echo msg="build-ver = ${build-ver}" />
-        <debug_echo msg="lib.dir = ${lib.dir}" />
-        <debug_echo msg="output.dir = ${output.dir}" />
-        <debug_echo msg="main-class = ${main-class}" />
-
-        <antcall target="-genSystem">
-            <param name="desc" value="Generate Popup."/>
-            <param name="target" value="popup"/>
-        </antcall>
+        <runGenSystem target="system"/>
     </target>
 
     <target name="gen-label" description="Generate the Label SQL">
@@ -198,15 +110,15 @@
         />
     </target>
 
-        <target name="gen-history" description="Generate the History Configuration SQL">
+    <target name="gen-history" description="Generate the History Configuration SQL">
         <fail message="Please specific a domain ID (not ROOT domain) to generate the SQL!">
             <condition>
                 <not>
                     <isset property="domainId"/>
-                    </not>
-                </condition>
+                </not>
+            </condition>
         </fail>
-        <taskdef  name="genHistorySqlTask"
+        <taskdef name="genHistorySqlTask"
             classname="com.core.cbx.generator.util.HistoryDefSqlGenerator">
             <classpath refid="project.class.path"/>
         </taskdef>
@@ -220,7 +132,6 @@
             targetFileName="${output.dir}/sql/${domainId}_history.sql"
         />
     </target>
-
 
     <target name="release-install-genAllValidation" depends="-init-install">
         <debug_echo msg="##### BEGIN of Modules(Validation) generation #####"/>
@@ -263,11 +174,7 @@
                 <propertyregex override="yes" property="moduleName" input="@{file}"
                                regexp=".*[\\/]([^\\/]*)_validation\.xls."
                                replace="\1" casesensitive="false"/>
-                <antcall target="-genForm">
-                    <param name="module" value="${moduleName}"/>
-                    <param name="desc" value="Generate validation - ${moduleName}"/>
-                    <param name="target" value="validation"/>
-                </antcall>
+                <runGenForm module="${moduleName}" target="validation"/>
             </sequential>
         </for>
         <debug_echo msg="##### END of Modules(validation) generation #####"/>
@@ -278,7 +185,6 @@
         <debug_echo msg="lib.dir = ${lib.dir}" />
         <debug_echo msg="output.dir = ${output.dir}" />
         <debug_echo msg="main-class = ${main-class}" />
-
 
         <debug_echo msg="##### BEGIN of Modules(Entity) generation #####"/>
         <!-- Entity -->
@@ -332,11 +238,7 @@
                 <propertyregex override="yes" property="moduleName" input="@{file}"
                                regexp=".*[\\/]([^\\/]*)_dataInheritanceProfile\.xls."
                                replace="\1" casesensitive="false"/>
-                <antcall target="-genForm">
-                    <param name="module" value="${moduleName}"/>
-                    <param name="desc" value="Generate inheritance data - ${moduleName}"/>
-                    <param name="target" value="dataMappingRule,dataInheritanceProfile"/>
-                </antcall>
+                <runGenForm module="${moduleName}" target="dataMappingRule,dataInheritanceProfile"/>
             </sequential>
         </for>
         <debug_echo msg="##### END of Modules(DataMapping/Inheritance) generation #####"/>
@@ -358,16 +260,11 @@
                 <propertyregex override="yes" property="moduleName" input="@{file}"
                                regexp=".*[\\/]([^\\/]*)_entity\.xls."
                                replace="\1" casesensitive="false"/>
-                <antcall target="-genForm">
-                    <param name="module" value="${moduleName}"/>
-                    <param name="desc" value="Generate entity - ${moduleName}"/>
-                    <param name="target" value="entity"/>
-                </antcall>
+                <runGenForm module="${moduleName}" target="entity"/>
             </sequential>
         </for>
         <debug_echo msg="##### END of Modules(entity) generation #####"/>
     </target>
-
 
     <target name="-gen-all-form" >
         <debug_echo msg="build-ver = ${build-ver}" />
@@ -385,11 +282,7 @@
                 <propertyregex override="yes" property="moduleName" input="@{file}"
                                regexp=".*[\\/]([^\\/]*)_form\.xls."
                                replace="\1" casesensitive="false"/>
-                <antcall target="-genForm">
-                    <param name="module" value="${moduleName}"/>
-                    <param name="desc" value="Generate form - ${moduleName}"/>
-                    <param name="target" value="form"/>
-                </antcall>
+                <runGenForm module="${moduleName}" target="form"/>
             </sequential>
         </for>
         <debug_echo msg="##### END of Modules(form) generation #####"/>
@@ -411,11 +304,7 @@
                 <propertyregex override="yes" property="moduleName" input="@{file}"
                                regexp=".*[\\/]([^\\/]*)_popup\.xls."
                                replace="\1" casesensitive="false" defaultValue=""/>
-                <antcall target="-genForm">
-                    <param name="module" value="${moduleName}"/>
-                    <param name="desc" value="Generate popup - ${moduleName}"/>
-                    <param name="target" value="popup"/>
-                </antcall>
+                <runGenForm module="${moduleName}" target="popup"/>
             </sequential>
         </for>
         <debug_echo msg="##### END of Modules(popup) generation #####"/>
@@ -431,17 +320,13 @@
 
         <for param="file">
             <path>
-                <fileset dir="${basedir}/excel/inheritance" includes="*.xls*"/>
+                <fileset dir="${gen.excel.directory}/inheritance" includes="*.xls*"/>
             </path>
             <sequential>
                 <propertyregex override="yes" property="moduleName" input="@{file}"
                                regexp=".*[\\/]([^\\/]*)_dataInheritanceProfile\.xls."
                                replace="\1" casesensitive="false"/>
-                <antcall target="-genForm">
-                    <param name="module" value="${moduleName}"/>
-                    <param name="desc" value="Generate inheritance - ${moduleName}"/>
-                    <param name="target" value="dataMappingRule,dataInheritanceProfile"/>
-                </antcall>
+                <runGenForm module="${moduleName}" target="dataMappingRule,dataInheritanceProfile"/>
             </sequential>
         </for>
         <debug_echo msg="##### END of Modules(inheritance) generation #####"/>
@@ -463,16 +348,11 @@
                 <propertyregex override="yes" property="moduleName" input="@{file}"
                                regexp=".*[\\/]([^\\/]*)_view\.xls."
                                replace="\1" casesensitive="false" defaultValue=""/>
-                <antcall target="-genForm">
-                    <param name="module" value="${moduleName}"/>
-                    <param name="desc" value="Generate searchView - ${moduleName}"/>
-                    <param name="target" value="searchView"/>
-                </antcall>
+                <runGenForm module="${moduleName}" target="searchView"/>
             </sequential>
         </for>
         <debug_echo msg="##### END of Modules(searchView) generation #####"/>
     </target>
-
 
     <target name="-gen-all-security" >
         <debug_echo msg="build-ver = ${build-ver}" />
@@ -490,11 +370,7 @@
                 <propertyregex override="yes" property="moduleName" input="@{file}"
                                regexp=".*[\\/]([^\\/]*)_entity_security\.xls."
                                replace="\1" casesensitive="false"/>
-                <antcall target="-genForm">
-                    <param name="module" value="${moduleName}"/>
-                    <param name="desc" value="Generate security - ${moduleName}"/>
-                    <param name="target" value="security"/>
-                </antcall>
+                <runGenForm module="${moduleName}" target="security"/>
             </sequential>
         </for>
         <debug_echo msg="##### END of Modules(security) generation #####"/>
@@ -660,11 +536,7 @@
         <for list="${gen.batch.modules}" delimiter="," param="val">
             <sequential>
                 <echo message = "module = @{val}"/>
-                <antcall target="-genForm">
-                    <param name="module" value="@{val}"/>
-                    <param name="desc" value="Generate core data - @{val}"/>
-                    <param name="target" value="${gen.batch.target}"/>
-                </antcall>
+                <runGenForm module="@{val}" target="${gen.batch.target}"/>
             </sequential>
         </for>
     </target>
@@ -678,15 +550,16 @@
                 <property name="cmdline.module" value="${gen.single.module}"/>
             </then>
         </if>
-
-        <debug_echo msg="output.dir = ${output.dir}" />
-        <debug_echo msg="main-class = ${main-class}" />
-
-        <antcall target="-genForm">
-            <param name="module" value="${cmdline.module}"/>
-            <param name="desc" value="Generate SINGLE module data."/>
-            <param name="target" value="${gen.single.target}"/>
-        </antcall>
+        <if>
+            <not>
+                <isset property="cmdline.target"/>
+            </not>
+            <then>
+                <property name="cmdline.target" value="${gen.single.target}"/>
+            </then>
+        </if>
+        <echo>Generate Single Excel</echo>
+        <runGenForm module="${cmdline.module}" target="${cmdline.target}"/>
     </target>
 
     <target name="clean-export">
@@ -696,8 +569,6 @@
     </target>
 
     <target name="gen-export" description="Generate Search View Export Template">
-
-
         <if>
             <not>
                 <isset property="viewId"/>
@@ -706,7 +577,7 @@
                 <echo>Property "viewId" not set.</echo>
                 <echo>To set, please use command line:</echo>
                 <echo/>
-                <echo>       ant -gen-export -DviewId=[viewId/ALL] </echo>
+                <echo>       ant gen-export -DviewId=[viewId/ALL] </echo>
                 <echo/>
                 <echo>Note:</echo>
                 <echo/>
@@ -741,15 +612,13 @@
 
         <debug_echo msg="Domain id is: ${cmdline.domainId}"/>
         <debug_echo msg="Local is: ${cmdline.locale}."/>
-                <debug_echo msg="Out put path is: ${gen.export.output.path}"/>
-                <debug_echo msg="Template file is: ${gen.export.template.file}"/>
+        <debug_echo msg="Out put path is: ${gen.export.output.path}"/>
+        <debug_echo msg="Template file is: ${gen.export.template.file}"/>
 
         <java classname="com.core.cbx.generator.util.ExportTemplateGenerator" fork="true" maxmemory="512m">
             <classpath refid="project.class.path"/>
-
             <arg value="${cmdline.domainId}"/>
-
-           <arg value="${viewId}"/>
+            <arg value="${viewId}"/>
             <arg value="${cmdline.locale}"/>
             <arg value="${gen.export.template.file}"/>
             <arg value="${gen.export.output.path}"/>
@@ -768,24 +637,11 @@
         <echo>  ${output.dir}/sql/systemMessage.sql </echo>
     </target>
 
-    <target name="-genSysMsgSql" description="Generate the System Message SQL">
-        <taskdef  name="genSystemConfigSqlTask"
-            classname="com.core.cbx.resource.build.SystemMessageSqlGenerator">
-            <classpath refid ="project.class.path"/>
+    <target name="-genSysMsgSql">
+        <createDBSettingPropertiesFile dbUser="${gen.db.user}" dbPwd="${gen.db.pwd}" dbUrl="${gen.db.url}"/>
+        <taskdef name="genSystemConfigSqlTask" classname="com.core.cbx.resource.build.SystemMessageSqlGenerator">
+            <classpath refid="project.class.path"/>
         </taskdef>
-
-        <!-- create DBSetting.properties for the DB connection -->
-        <propertyfile file="DBSetting.properties"
-                      comment="AUTO GENERATED. To amend, plesae edit settings/generator.properties" >
-            <entry key="resource.ds1.domainId" value="${gen.domainId}"/>
-            <entry key="resource.ds1.resourceName" value="${gen.db.resourceName}"/>
-            <entry key="resource.ds1.xaDataSourceClassName" value="${gen.db.xaDataSourceClassName}"/>
-            <entry key="resource.ds1.maxPoolSize" value="${gen.db.maxPoolSize}"/>
-            <entry key="resource.ds1.xaProperties.user" value="${gen.db.user}"/>
-            <entry key="resource.ds1.xaProperties.password" value="${gen.db.pwd}"/>
-            <entry key="resource.ds1.xaProperties.URL" value="${gen.db.url}"/>
-        </propertyfile>
-
         <genSystemConfigSqlTask
             resourceFile="${gen.target.path}/src/main/resources/SystemMessage.txt"
             startLine="1"
@@ -873,7 +729,6 @@
         </java>
     </target>
 
-
     <target name="dataMigration" description="Execute batch aciton">
         <java classname="com.core.cbx.dataMigration.runBatchAction.CNTRunBatchAction" fork="true" maxmemory="512m">
             <classpath refid="project.class.path"/>
@@ -881,16 +736,139 @@
         </java>
     </target>
 
-    <target name="-genCustomizeAction" description="Generate the Customize Action" depends="clean">
-           <java classname="com.core.cbx.generator.CustomActionGenerator" fork="true" maxmemory="512m">
+    <target name="genCustomizeAction" depends="clean" description="Generate the Customize Action">
+        <java classname="com.core.cbx.generator.CustomActionGenerator" fork="true" maxmemory="512m">
+            <classpath refid="project.class.path"/>
+            <jvmarg value="-Dgenerator.domainId=${gen.single.projectDomain}"/>
+        </java>
+        <zip destfile="${output.dir}/cbx-customize-actions-${build-ver}-src.jar"
+             basedir="${output.dir}/customAction/src/main/java" includes="**/*.java"
+        />
+    </target>
+
+    <!-- Followings define the macro used in this build.xml -->
+    <macrodef name="debug_echo">
+        <attribute name="msg"/>
+        <sequential>
+            <echo message="@{msg}"/>
+        </sequential>
+    </macrodef>
+
+    <macrodef name="createDBSettingPropertiesFile" description="Create DBSetting.properties file">
+        <!-- mandatory parameters -->
+        <attribute name="dbUser"/>
+        <attribute name="dbPwd"/>
+        <attribute name="dbUrl"/>
+        <!-- optional parameters -->
+        <attribute name="domain" default="${gen.domainId}"/>
+        <attribute name="resource" default="${gen.db.resourceName}"/>
+        <attribute name="dbXaDataSourceClassName" default="${gen.db.xaDataSourceClassName}"/>
+        <attribute name="dbMaxPoolSize" default="${gen.db.maxPoolSize}"/>
+        <sequential>
+            <echo>Create DBSetting.properties with following settings:</echo>
+            <echo>DB URL: @{dbUrl}</echo>
+            <echo>DB User: @{dbUser}</echo>
+
+            <!-- create DBSetting.properties for the DB connection -->
+            <propertyfile file="DBSetting.properties"
+                          comment="AUTO GENERATED. To amend, plesae edit settings/generator.properties" >
+                <entry key="resource.ds1.domainId" value="@{domain}"/>
+                <entry key="resource.ds1.resourceName" value="@{resource}"/>
+                <entry key="resource.ds1.xaDataSourceClassName" value="@{dbXaDataSourceClassName}"/>
+                <entry key="resource.ds1.maxPoolSize" value="@{dbMaxPoolSize}"/>
+                <entry key="resource.ds1.xaProperties.user" value="@{dbUser}"/>
+                <entry key="resource.ds1.xaProperties.password" value="@{dbPwd}"/>
+                <entry key="resource.ds1.xaProperties.URL" value="@{dbUrl}"/>
+            </propertyfile>
+        </sequential>
+    </macrodef>
+
+    <macrodef name="createGeneratorPropertiesFile" description="Create the generator properties file">
+        <!-- mandatory parameters -->
+        <attribute name="filename"/>
+        <attribute name="module"/>
+        <attribute name="target"/>
+        <attribute name="dbUser"/>
+        <attribute name="dbPwd"/>
+        <attribute name="dbUrl"/>
+        <attribute name="targetPath"/>
+        <!-- optional parameters -->
+        <attribute name="mode" default="${gen.mode}"/>
+        <attribute name="domainId" default="${gen.domainId}"/>
+        <attribute name="desc" default=""/>
+        <attribute name="dbResourceName" default="${gen.db.resourceName}"/>
+        <attribute name="dbXaResourceName" default="${gen.db.xaDataSourceClassName}"/>
+        <attribute name="dbMaxPoolSize" default="${gen.db.maxPoolSize}"/>
+        <attribute name="reportDomainId" default="${gen.reporting.domainId}"/>
+        <attribute name="reportModule" default="${gen.reporting.module}"/>
+        <attribute name="reportDbType" default="${gen.reporting.dbType}"/>
+        <attribute name="templatePath" default="${gen.template.path}"/>
+        <attribute name="linguals" default="${gen.linguals}"/>
+        <attribute name="excelDir" default="${gen.excel.directory}"/>
+
+        <sequential>
+            <echo message="Creating CNTGenerator used properties file..."/>
+            <echo message="File name: @{filename}"/>
+            <echo message="Module: [@{module}]"/>
+            <echo message="Target: [@{target}]"/>
+            <echo message="gen.db.user: [@{dbUser}]"/>
+            <echo message="gen.db.pwd: [@{dbPwd}]"/>
+            <echo message="gen.db.url: [@{dbUrl}]"/>
+            <echo message="gen.target.path: [@{targetPath}]"/>
+
+            <delete file="@{filename}"/>
+            <propertyfile file="@{filename}"
+                          comment="AUTO GENERATED. To amend, please edit settings/generator.properties" >
+                <entry key="mode" value="@{model}"/>
+                <entry key="module" value="@{module}"/>
+                <entry key="target" value="@{target}"/>
+                <entry key="reporting.domainId" value="@{reportDomainId}"/>
+                <entry key="reporting.module" value="@{reportModule}"/>
+                <entry key="reporting.dbType" value="@{reportDbType}"/>
+                <entry key="target.path" value="@{targetPath}"/>
+                <entry key="template.path" value="@{templatePath}"/>
+                <entry key="linguals" value="@{linguals}"/>
+                <entry key="excel.directory" value="@{excelDir}"/>
+                <entry key="resource.ds1.domainId" value="@{domainId}"/>
+                <entry key="resource.ds1.resourceName" value="@{dbResourceName}"/>
+                <entry key="resource.ds1.xaDataSourceClassName" value="@{dbXaResourceName}"/>
+                <entry key="resource.ds1.maxPoolSize" value="@{dbMaxPoolSize}"/>
+                <entry key="resource.ds1.xaProperties.user" value="@{dbUser}"/>
+                <entry key="resource.ds1.xaProperties.password" value="@{dbPwd}"/>
+                <entry key="resource.ds1.xaProperties.URL" value="@{dbUrl}"/>
+            </propertyfile>
+        </sequential>
+    </macrodef>
+
+    <macrodef name="runGenForm" description="Generate the form">
+        <!-- mandatory parameters -->
+        <attribute name="module"/>
+        <attribute name="target"/>
+        <!-- optional parameters -->
+        <attribute name="propertiesFile" default="${properties-file}"/>
+        <attribute name="dbUser" default="${gen.db.user}"/>
+        <attribute name="dbPwd" default="${gen.db.pwd}"/>
+        <attribute name="dbUrl" default="${gen.db.url}"/>
+        <attribute name="targetPath" default="${gen.target.path}"/>
+
+        <sequential>
+            <createGeneratorPropertiesFile filename="@{propertiesFile}"
+                module="@{module}" target="@{target}"
+                dbUser="@{dbUser}" dbPwd="@{dbPwd}" dbUrl="@{dbUrl}"
+                targetPath="@{targetPath}"/>
+
+            <java classname="${main-class}" fork="true" maxmemory="512m">
+                <sysproperty key="system.disableDistributedCache" value="true"/>
                 <classpath refid="project.class.path"/>
-                <jvmarg value="-Dgenerator.domainId=${projectDomain}"/>
             </java>
-    </target>
-    <target name="genCustomizeAction" description="Generate the Customize Action">
-            <antcall target="-genCustomizeAction">
-                <param name="projectDomain" value="${gen.single.projectDomain}"/>
-            </antcall>
-    </target>
+        </sequential>
+    </macrodef>
+
+    <macrodef name="runGenSystem" description="Generate the system">
+        <attribute name="target"/>
+        <sequential>
+            <runGenForm module="" target="@{target}"/>
+        </sequential>
+    </macrodef>
 
 </project>

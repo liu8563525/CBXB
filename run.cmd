@@ -12,20 +12,24 @@ set ANT_OPTS=-Xms512m -Xmx512m
 
 REM if not exist %ANT_BAT_FILE% goto ERR_2
 
-:SET_CMDLINE_MODULE
+:SET_CMDLINE
 REM ------------------
-REM    set the CMDLINE_MODULE
+REM    set the CMDLINE
 REM ------------------
-set CMDLINE_MODULE=
+set CMDLINE=
 if NOT "%1" == "" (
-    set CMDLINE_MODULE=-Dcmdline.module=%1
+    set CMDLINE=-Dcmdline.module=%1
+)
+
+if NOT "%2" == "" (
+	set CMDLINE=%CMDLINE% -Dcmdline.target=%2
 )
 
 REM ------------------
 REM    Call the ant
 REM ------------------
 @echo on
-call "%ANT_BAT_FILE%" -lib lib %CMDLINE_MODULE%
+call "%ANT_BAT_FILE%" -lib lib %CMDLINE% single-run
 
 goto SUCC_END
 
