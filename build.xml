@@ -819,7 +819,7 @@
             <delete file="@{filename}"/>
             <propertyfile file="@{filename}"
                           comment="AUTO GENERATED. To amend, please edit settings/generator.properties" >
-                <entry key="mode" value="@{model}"/>
+                <entry key="mode" value="@{mode}"/>
                 <entry key="module" value="@{module}"/>
                 <entry key="target" value="@{target}"/>
                 <entry key="reporting.domainId" value="@{reportDomainId}"/>
