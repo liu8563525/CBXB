@@ -39,7 +39,7 @@ INSERT INTO CNT_NOTIFICATION_PROFILE (
 SELECT LOWER(SYS_GUID()), 1, 1, '/', 'system', SYSDATE,
   'VPO Send Notification Profile', 'CBX Notification - Vendor Purchase Order: ${(reqDoc.vpoNo)!""}'
   , 'Dear ${(vendorName)!""} <#if vendorCode??>(${(vendorCode)!""})</#if>,</p><p style=''padding-left:2em;font-family:"Calibri","sans-serif"''>You received one Vendor Purchase Order for the following</p><p style=''padding-left:2em;font-family:"Calibri","sans-serif"''><table style=''border:0px;font-family:"Calibri","sans-serif";''><tr><td>Vendor Purchase Order No.:</td><td>${(reqDoc.vpoNo)!""}</td></tr><tr><td>Notes / Instructions:</td><td>${(reqDoc.instructions)!""}</td></tr></table></p><#if webSite??><p style=''padding-left:2em;font-family:"Calibri","sans-serif"''>Reply Vendor CBX Website URL: <a href="${(webSite)!""}">${(webSite)!""}</a></p></#if><p style=''font-family:"Calibri","sans-serif"''>Best Regards,<br/>${(sender)!""}</p>'
-  , 1, 1, 1, 0, 0, 0, 1 FROM DUAL
+  , 1, 0, 1, 0, 0, 0, 1 FROM DUAL
   WHERE NOT EXISTS (SELECT 1 FROM CNT_NOTIFICATION_PROFILE WHERE PROFILE_NAME='VPO Send Notification Profile' AND DOMAIN_ID='/');
 
 INSERT INTO CNT_DOMAIN_ATTRIBUTE (ID, REVISION, ENTITY_VERSION, DOMAIN_ID, KEY, VALUE, CATEGORY, TYPE, DESCRIPTION)
@@ -3292,7 +3292,7 @@ INSERT INTO CNT_NOTIFICATION_PROFILE (
 SELECT LOWER(SYS_GUID()), 1, 1, 'SGS', 'system', SYSDATE,
   'VPO Send Notification Profile', 'CBX Notification - Vendor Purchase Order: ${(reqDoc.vpoNo)!""}'
   , 'Dear ${(vendorName)!""} <#if vendorCode??>(${(vendorCode)!""})</#if>,</p><p style=''padding-left:2em;font-family:"Calibri","sans-serif"''>You received one Vendor Purchase Order for the following</p><p style=''padding-left:2em;font-family:"Calibri","sans-serif"''><table style=''border:0px;font-family:"Calibri","sans-serif";''><tr><td>Vendor Purchase Order No.:</td><td>${(reqDoc.vpoNo)!""}</td></tr><tr><td>Notes / Instructions:</td><td>${(reqDoc.instructions)!""}</td></tr></table></p><#if webSite??><p style=''padding-left:2em;font-family:"Calibri","sans-serif"''>Reply Vendor CBX Website URL: <a href="${(webSite)!""}">${(webSite)!""}</a></p></#if><p style=''font-family:"Calibri","sans-serif"''>Best Regards,<br/>${(sender)!""}</p>'
-  , 1, 1, 1, 0, 0, 0, 1 FROM DUAL
+  , 1, 0, 1, 0, 0, 0, 1 FROM DUAL
   WHERE NOT EXISTS (SELECT 1 FROM CNT_NOTIFICATION_PROFILE WHERE PROFILE_NAME='VPO Send Notification Profile' AND DOMAIN_ID='SGS');
 
 INSERT INTO CNT_DOMAIN_ATTRIBUTE (ID, REVISION, ENTITY_VERSION, DOMAIN_ID, KEY, VALUE, CATEGORY, TYPE, DESCRIPTION)
