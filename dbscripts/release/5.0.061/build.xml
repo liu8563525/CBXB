@@ -1,0 +1,433 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<project name="cbx-release" default="single-run" basedir=".">
+    <taskdef resource="net/sf/antcontrib/antlib.xml" classpath="ant-lib/ant-contrib-1.0b3.jar"/>
+    <property file="settings/generator.properties"/>
+
+    <property name="jar-name" value="cbx-biz"/>
+    <property name="build-ver" value="5.0.060.0"/>
+
+    <property name="builder-used" value="cbx-builder-5.0.005.0"/>
+    <property name="common-used" value="cbx-common-5.0.003.0"/>
+    <property name="ui-used" value="cbx-ui-5.0.005.0"/>
+    <property name="core-used" value="cbx-core-5.0.005.0"/>
+
+    <property name="lib.dir" value="${basedir}/lib"/>
+    <property name="output.dir"  value="${basedir}/output"/>
+    <property name="include.dir"  value="${basedir}/include"/>
+    <property name="working.dir"  value="${basedir}"/>
+    <property name="properties-file"  value="builder.properties"/>
+    <property name="main-class"  value="com.core.cbx.generator.Main"/>
+    <property name="default-target"  value="entity,form,popup,dataMappingRule,dataInheritanceProfile"/>  <!-- entity,form,popup,dataMappingRule,dataInheritanceProfile,security -->
+
+    <!--module: e.g.: cust, vendor, fact, rfq, vq, cpo, vpo offersheet, brief, item, spec, user, role, group, domain-->
+    <!--The active target generator, options (per module): entity,form,popup,dataMappingRule,dataInheritanceProfile,security-->
+    <!--The active target generator, options (per system): system,searchView,popup-->
+    <!--Multiple generators can be started up by contacting by comma.-->
+    <!--if target type is per system, the module type is irrelevant-->
+
+    <macrodef name="debug_echo">
+        <attribute name="msg"/>
+        <sequential>
+            <echo message="@{msg}"/>
+        </sequential>
+    </macrodef>
+
+    <path id="project.class.path">
+        <fileset dir="${lib.dir}" includes="**/*.jar"/>
+    </path>
+
+    <target name="clean">
+        <delete includeemptydirs="false">
+            <fileset dir="${output.dir}" includes="**/*"/>
+        </delete>
+        <delete includeemptydirs="false">
+            <fileset dir="${working.dir}" includes="**/*"/>
+        </delete>
+    </target>
+
+    <target name="-clean-inher">
+        <delete file="${output.dir}/scripts/DML_DATA_INHERITANCE_PROFILE.sql"/>
+        <delete file="${output.dir}/scripts/DML_DATA_MAPPING_RULE.sql"/>
+        <delete>
+            <fileset dir="${output.dir}/scripts" includes="/*_DML_DATA_INHERITANCE_PROFILE.sql"/>
+        </delete>
+        <delete>
+            <fileset dir="${output.dir}/scripts" includes="/*_DML_DATA_MAPPING_RULE.sql"/>
+        </delete>
+    </target>
+
+    <target name="-init-install">
+        <property name="gen.db.user" value="${gen.install.user}"/>
+        <property name="gen.db.pwd"  value="${gen.install.pwd}"/>
+        <property name="gen.db.url"  value="${gen.install.url}"/>
+    </target>
+
+    <target name="-init-update">
+        <property name="gen.db.user" value="${gen.update.user}"/>
+        <property name="gen.db.pwd"  value="${gen.update.pwd}"/>
+        <property name="gen.db.url"  value="${gen.update.url}"/>
+    </target>
+
+    <target name="-init-single">
+        <property name="gen.db.user" value="${gen.single.user}"/>
+        <property name="gen.db.pwd"  value="${gen.single.pwd}"/>
+        <property name="gen.db.url"  value="${gen.single.url}"/>
+    </target>
+
+    <target name="-genForm">
+        <debug_echo msg="Module: [${module}]"/>
+        <debug_echo msg="Target: [${target}]"/>
+        <debug_echo msg="Desc: [${desc}]"/>
+        <debug_echo msg="gen.db.user: [${gen.db.user}]"/>
+        <debug_echo msg="gen.db.pwd: [${gen.db.pwd}]"/>
+        <debug_echo msg="gen.db.url: [${gen.db.url}]"/>
+        <debug_echo msg="gen.target.path: [${gen.target.path}]"/>
+
+        <!-- delete existing builder.properties file -->
+        <delete file="${properties-file}"/>
+
+        <!-- create builder.properties for cbx-builder -->
+        <propertyfile file="builder.properties"
+                      comment="AUTO GENERATED. To amend, please edit settings/generator.properties" >
+            <entry key="mode" value="${gen.mode}"/>
+            <entry key="module" value="${module}"/>
+            <entry key="target" value="${target}"/>
+            <entry key="target.path" value="${gen.target.path}"/>
+            <entry key="template.path" value="${gen.template.path}"/>
+            <entry key="linguals" value="${gen.linguals}"/>
+            <entry key="resource.ds1.domainId" value="${gen.domainId}"/>
+            <entry key="resource.ds1.resourceName" value="${gen.db.resourceName}"/>
+            <entry key="resource.ds1.xaDataSourceClassName" value="${gen.db.xaDataSourceClassName}"/>
+            <entry key="resource.ds1.maxPoolSize" value="${gen.db.maxPoolSize}"/>
+            <entry key="resource.ds1.xaProperties.user" value="${gen.db.user}"/>
+            <entry key="resource.ds1.xaProperties.password" value="${gen.db.pwd}"/>
+            <entry key="resource.ds1.xaProperties.URL" value="${gen.db.url}"/>
+        </propertyfile>
+
+        <java classname="${main-class}" fork="true">
+            <classpath refid="project.class.path"/>
+        </java>
+    </target>
+
+    <target name="-genSystem">
+        <!-- reuse genForm task -->
+        <antcall target="-genForm">
+            <param name="module" value=""/>
+            <param name="desc" value="${desc}"/>
+            <param name="target" value="${target}"/>  <!-- system, searchView, popuup, dataMappingRule -->
+        </antcall>
+    </target>
+
+    <target name="-gen-system">
+        <debug_echo msg="build-ver = ${build-ver}" />
+        <debug_echo msg="lib.dir = ${lib.dir}" />
+        <debug_echo msg="output.dir = ${output.dir}" />
+        <debug_echo msg="main-class = ${main-class}" />
+
+        <antcall target="-genSystem">
+            <param name="desc" value="Generate System."/>
+            <param name="target" value="system"/>
+        </antcall>
+    </target>
+
+    <target name="-gen-search">
+        <debug_echo msg="build-ver = ${build-ver}" />
+        <debug_echo msg="lib.dir = ${lib.dir}" />
+        <debug_echo msg="output.dir = ${output.dir}" />
+        <debug_echo msg="main-class = ${main-class}" />
+
+        <antcall target="-genSystem">
+            <param name="desc" value="Generate Search View."/>
+            <param name="target" value="searchView"/>
+        </antcall>
+    </target>
+
+    <target name="-gen-popup">
+        <debug_echo msg="build-ver = ${build-ver}" />
+        <debug_echo msg="lib.dir = ${lib.dir}" />
+        <debug_echo msg="output.dir = ${output.dir}" />
+        <debug_echo msg="main-class = ${main-class}" />
+
+        <antcall target="-genSystem">
+            <param name="desc" value="Generate Popup."/>
+            <param name="target" value="popup"/>
+        </antcall>
+    </target>
+
+    <target name="gen-label" description="Generate the Label SQL">
+        <if>
+            <not>
+                <isset property="cmdline.domainId"/>
+            </not>
+            <then>
+                <property name="cmdline.domainId" value="${gen.domainId}"/>
+            </then>
+        </if>
+        <delete file="${gen.target.path}/src/main/resources/labels/LABELS.tmp"/>
+        <concat destfile="${gen.target.path}/src/main/resources/labels/LABELS.tmp" fixlastline="yes">
+            <fileset dir="${gen.target.path}/src/main/resources/labels/" includes="*.txt"/>
+        </concat>
+        <taskdef  name="genLabelSqlTask"
+            classname="com.core.cbx.generator.util.LabelSqlGenerator">
+            <classpath refid="project.class.path"/>
+        </taskdef>
+        <genLabelSqlTask
+            domainId="${cmdline.domainId}"
+            resourceFile="${gen.target.path}/src/main/resources/labels/LABELS.tmp"
+            startLine="1"
+            endLine="-1"
+            delimiter="\t"
+            overwrite="true"
+            targetFileName="${output.dir}/sql/label.sql"
+        />
+    </target>
+
+    <target name="-gen-all" depends="clean">
+        <debug_echo msg="build-ver = ${build-ver}" />
+        <debug_echo msg="lib.dir = ${lib.dir}" />
+        <debug_echo msg="output.dir = ${output.dir}" />
+        <debug_echo msg="main-class = ${main-class}" />
+
+        <debug_echo msg="##### BEGIN of Modules(Entity/Form/Security) generation #####"/>
+
+        <for param="file">
+            <path>
+                <fileset dir="${basedir}/excel/entity" includes="*.xls*"/>
+            </path>
+            <sequential>
+                <propertyregex override="yes" property="moduleName" input="@{file}"
+                               regexp=".*[\\/]([^\\/]*)_entity\.xls."
+                               replace="\1" casesensitive="false"/>
+                <antcall target="-genForm">
+                    <param name="module" value="${moduleName}"/>
+                    <param name="desc" value="Generate core data - ${moduleName}"/>
+                    <param name="target" value="${default-target}"/>
+                </antcall>
+            </sequential>
+        </for>
+        <debug_echo msg="##### END of Modules(Entity/Form/Security) generation #####"/>
+
+        <debug_echo msg="######### BEGIN of Common (System/Search View/Popup) generation ###########"/>
+        <!-- System -->
+        <antcall target="-gen-system" />
+        <!-- Search View -->
+        <antcall target="-gen-search" />
+        <!-- Popup -->
+        <antcall target="-gen-popup" />
+        <debug_echo msg="######### END of Common (System/Search View/Popup) generation ###########"/>
+    </target>
+
+    <target name="-gen-all-inher" depends="-clean-inher">
+        <debug_echo msg="build-ver = ${build-ver}" />
+        <debug_echo msg="lib.dir = ${lib.dir}" />
+        <debug_echo msg="output.dir = ${output.dir}" />
+        <debug_echo msg="main-class = ${main-class}" />
+
+        <debug_echo msg="##### BEGIN of Modules(DataMapping/Inheritance) generation #####"/>
+
+        <for param="file">
+            <path>
+                <fileset dir="${basedir}/excel/entity" includes="*.xls*"/>
+            </path>
+            <sequential>
+                <propertyregex override="yes" property="moduleName" input="@{file}"
+                               regexp=".*[\\/]([^\\/]*)_entity\.xls."
+                               replace="\1" casesensitive="false"/>
+                <antcall target="-genForm">
+                    <param name="module" value="${moduleName}"/>
+                    <param name="desc" value="Generate inheritance data - ${moduleName}"/>
+                    <param name="target" value="dataMappingRule,dataInheritanceProfile"/>
+                </antcall>
+            </sequential>
+        </for>
+        <debug_echo msg="##### END of Modules(DataMapping/Inheritance) generation #####"/>
+    </target>
+
+    <target name="release-install-inher" depends="-init-install, -gen-all-inher">
+        <debug_echo msg="${working.dir}/install/${jar-name}-${build-ver}-04-install-dml-inheritance.create.sql[created]"/>
+        <!-- concat biz DML -->
+        <concat destfile="${working.dir}/install/${jar-name}-${build-ver}-04-install-dml-inheritance.create.sql" force="no">
+            <filelist dir="${include.dir}/"            files="sql_header.sql"/>
+            <fileset dir="${output.dir}/scripts/"      includes="*_DML_DATA_INHERITANCE_PROFILE.sql"/>
+            <fileset dir="${output.dir}/scripts/"      includes="*_DML_DATA_MAPPING_RULE.sql"/>
+            <!--filelist dir="${output.dir}/script/"      files="DML_DATA_INHERITANCE_PROFILE.sql"/-->
+            <!--filelist dir="${output.dir}/script/"      files="DML_DATA_MAPPING_RULE.sql"/-->
+            <filelist dir="${include.dir}/"            files="sql_commit.sql"/>
+        </concat>
+    </target>
+
+    <target name="release-update-inher" depends="-init-update, -gen-all-inher">
+        <debug_echo msg="${working.dir}/install/${jar-name}-${build-ver}-04-update-dml-inheritance.create.sql[created]"/>
+        <!-- concat biz DML -->
+        <concat destfile="${working.dir}/install/${jar-name}-${build-ver}-04-update-dml-inheritance.create.sql" force="no">
+            <filelist dir="${include.dir}/"            files="sql_header.sql"/>
+            <fileset dir="${output.dir}/scripts/"      includes="*_DML_DATA_INHERITANCE_PROFILE.sql"/>
+            <fileset dir="${output.dir}/scripts/"      includes="*_DML_DATA_MAPPING_RULE.sql"/>
+            <!--filelist dir="${output.dir}/script/"      files="DML_DATA_INHERITANCE_PROFILE.sql"/-->
+            <!--filelist dir="${output.dir}/script/"      files="DML_DATA_MAPPING_RULE.sql"/-->
+            <filelist dir="${include.dir}/"            files="sql_commit.sql"/>
+        </concat>
+    </target>
+
+    <target name="release-install" depends="-init-install, -gen-all, gen-label">
+        <mkdir dir="${working.dir}/install"/>
+
+        <!-- clean working directory -->
+        <delete includeemptydirs="true">
+            <fileset dir="${working.dir}/install" includes="**/*"/>
+        </delete>
+
+        <debug_echo msg="${working.dir}/install/${jar-name}-${build-ver}-02-install-ddl-base.create.sql[created]"/>
+        <!-- concat biz table DDL -->
+        <concat destfile="${working.dir}/install/${jar-name}-${build-ver}-02-install-ddl-base.create.sql" force="no">
+            <filelist dir="${include.dir}/"            files="sql_header.sql"/>
+            <fileset dir="${output.dir}/scripts/"      includes="ddl/DDL_*.sql"/>
+            <filelist dir="${output.dir}/sql/"         files="create_sequence.sql"/>
+        </concat>
+
+        <debug_echo msg="${working.dir}/install/${jar-name}-${build-ver}-03-install-dml-base.default.sql[created]"/>
+        <!-- concat biz DML -->
+        <concat destfile="${working.dir}/install/${jar-name}-${build-ver}-03-install-dml-base.default.sql" force="no">
+            <filelist dir="${include.dir}/"            files="sql_header.sql"/>
+            <filelist dir="${output.dir}/security/"    files="system.sql"/>
+            <fileset dir="${output.dir}/security/"     includes="*.sql" excludes="system.sql"/>
+            <fileset dir="${output.dir}/scripts/"      includes="dml/DML_*.sql"/>
+            <filelist dir="${output.dir}/sql/"         files="update_sequence.sql"/>
+            <filelist dir="${output.dir}/sql/"         files="insert_action_map.sql"/>
+            <filelist dir="${output.dir}/sql/"         files="action_audit.sql"/>
+            <filelist dir="${output.dir}/sql/"         files="init_navi_data.sql"/>
+            <filelist dir="${output.dir}/sql/"         files="insert_action_map.sql"/>
+            <filelist dir="${output.dir}/sql/"         files="label.sql"/>
+            <filelist dir="${include.dir}/"            files="sql_commit.sql"/>
+        </concat>
+
+        <debug_echo msg="${working.dir}/install/${jar-name}-${build-ver}-04-install-dml-inheritance.create.sql[created]"/>
+        <!-- concat biz DML -->
+        <concat destfile="${working.dir}/install/${jar-name}-${build-ver}-04-install-dml-inheritance.create.sql" force="no">
+            <filelist dir="${include.dir}/"            files="sql_header.sql"/>
+            <fileset dir="${output.dir}/scripts/"      includes="*_DML_DATA_INHERITANCE_PROFILE.sql"/>
+            <fileset dir="${output.dir}/scripts/"      includes="*_DML_DATA_MAPPING_RULE.sql"/>
+            <filelist dir="${include.dir}/"            files="sql_commit.sql"/>
+        </concat>
+
+    </target>
+
+    <target name="release-update" depends="-init-update, -gen-all, gen-label">
+        <mkdir dir="${working.dir}/update"/>
+
+        <!-- clean working directory -->
+        <delete includeemptydirs="true">
+            <fileset dir="${working.dir}/update" includes="**/*"/>
+        </delete>
+
+        <debug_echo msg="${working.dir}/update/${jar-name}-${build-ver}-03-update-dml-base.default.sql[created]"/>
+        <!-- concat biz DML -->
+        <concat destfile="${working.dir}/update/${jar-name}-${build-ver}-03-update-dml-base.default.sql" force="no">
+            <filelist dir="${include.dir}/"            files="sql_header.sql"/>
+            <filelist dir="${output.dir}/security/"    files="system.sql"/>
+            <fileset dir="${output.dir}/security/"     includes="*.sql" excludes="system.sql"/>
+            <fileset dir="${output.dir}/scripts/"      includes="dml/DML_*.sql"/>
+            <filelist dir="${output.dir}/sql/"         files="init_navi_data.sql"/>
+            <filelist dir="${output.dir}/sql/"         files="insert_action_map.sql"/>
+            <filelist dir="${output.dir}/sql/"         files="update_sequence.sql"/>
+            <filelist dir="${output.dir}/sql/"         files="insert_action_map.sql"/>
+            <filelist dir="${output.dir}/sql/"         files="action_audit.sql"/>
+            <filelist dir="${output.dir}/sql/"         files="label.sql"/>           
+            <filelist dir="${include.dir}/"            files="sql_commit.sql"/>
+        </concat>
+
+        <debug_echo msg="${working.dir}/install/${jar-name}-${build-ver}-04-update-dml-inheritance.create.sql[created]"/>
+        <!-- concat biz DML -->
+        <concat destfile="${working.dir}/install/${jar-name}-${build-ver}-04-update-dml-inheritance.create.sql" force="no">
+            <filelist dir="${include.dir}/"            files="sql_header.sql"/>
+            <fileset dir="${output.dir}/scripts/"      includes="*_DML_DATA_INHERITANCE_PROFILE.sql"/>
+            <fileset dir="${output.dir}/scripts/"      includes="*_DML_DATA_MAPPING_RULE.sql"/>
+            <filelist dir="${include.dir}/"            files="sql_commit.sql"/>
+        </concat>
+
+    </target>
+
+    <target name="single-run" depends="-init-single, clean">
+        <if>
+            <not>
+                <isset property="cmdline.module"/>
+            </not>
+            <then>
+                <property name="cmdline.module" value="${gen.single.module}"/>
+            </then>
+        </if>
+
+        <debug_echo msg="output.dir = ${output.dir}" />
+        <debug_echo msg="main-class = ${main-class}" />
+
+        <antcall target="-genForm">
+            <param name="module" value="${cmdline.module}"/>
+            <param name="desc" value="Generate SINGLE module data."/>
+            <param name="target" value="${gen.single.target}"/>
+        </antcall>
+    </target>
+    
+    <target name="concat-sql" >
+        <property name="working.dir"  value="C:/Users/mankit.ngo/Documents/Project/CBX Enterpise/release"/>
+        <property name="concate.dir"  value="C:/Users/mankit.ngo/Documents/Project/CBX Enterpise/release/join"/>
+ 
+        <debug_echo msg="${working.dir}/concated.sql[created]"/>
+        <!-- concat biz DML -->
+        <concat destfile="${working.dir}/concated.sql"  force="yes" fixlastline="yes">
+            <fileset dir="${concate.dir}"     includes="*.sql" /> 
+        </concat>
+    </target>
+
+    <target name="concat-update-sql" >
+        <property name="tools.dir"  value="../../../include"/>
+         <property name="dbInstall.dir"  value="../../../dbscripts/SetupSqlForRoot"/>
+        <property name="concate.dir"  value="./srcSql"/>
+ 
+        <debug_echo msg="${working.dir}/cbx-biz-${build-ver}-update-03-ddl-base.default.sql[created]"/>
+        <!-- concat biz DDL -->
+        <concat destfile="${working.dir}/cbx-biz-${build-ver}-update-03-ddl-base.default.sql"  force="yes" fixlastline="yes">
+            <filelist dir="${tools.dir}"           files="sql_header.sql"/>
+            <fileset dir="${concate.dir}"     includes="DDL_*.sql,DDL_*.SQL" /> 
+            <filelist dir="${tools.dir}"           files="sql_commit.sql"/>
+        </concat>
+        
+
+        <debug_echo msg="${working.dir}/cbx-biz-${build-ver}-update-04-dml-base.default.sql[created]"/>
+        <!-- concat biz DDL -->
+        <concat destfile="${working.dir}/cbx-biz-${build-ver}-update-04-dml-base.default.sql"  force="yes" fixlastline="yes">
+            <filelist dir="${tools.dir}"           files="sql_header.sql"/>
+            <filelist dir="${concate.dir}"    files="system.sql"/>
+            <fileset dir="${concate.dir}"     includes="*.sql,*.SQL" excludes="system.sql,DDL*.sql,DDL*.SQL,sql_header.sql,sql_commit.sql"/>
+            <filelist dir="${tools.dir}"          files="sql_commit.sql"/>
+        </concat>
+ 
+ 
+        
+        <debug_echo msg="${working.dir}/cbx-biz-${build-ver}-update-04-dml-base.default-without-validation-NOT-COMMIT.sql[created]"/>
+        <!-- concat biz DDL -->
+        <concat destfile="${working.dir}/cbx-biz-${build-ver}-update-04-dml-base.default-without-validation-NOT-COMMIT.sql"  force="yes" fixlastline="yes">
+            <filelist dir="${tools.dir}"           files="sql_header.sql"/>
+            <filelist dir="${concate.dir}"    files="system.sql"/>
+            <fileset dir="${concate.dir}"     includes="*.sql,*.SQL" excludes="system.sql,DDL*.sql,DDL*.SQL,sql_header.sql,sql_commit.sql,*_validation.sql"/>
+            <filelist dir="${tools.dir}"          files="sql_commit.sql"/>
+        </concat>
+        
+        <debug_echo msg="${working.dir}/cbx-biz-${build-ver}-update-04-dml-validation-NOT-COMMIT.sql[created]"/>
+        <!-- concat biz DDL -->
+        <concat destfile="${working.dir}/cbx-biz-${build-ver}-update-04-dml-validation-NOT-COMMIT.sql"  force="yes" fixlastline="yes">
+            <filelist dir="${tools.dir}"           files="sql_header.sql"/>
+            <fileset dir="${concate.dir}"     includes="*_validation.sql" />
+            <filelist dir="${tools.dir}"          files="sql_commit.sql"/>
+        </concat>
+         
+        <debug_echo msg="${working.dir}/cbx-biz-${build-ver}-update-07-others.sql[created]"/>
+        <concat destfile="${working.dir}/cbx-biz-${build-ver}-update-07-others.sql"  force="yes" fixlastline="yes">
+            <filelist dir="${tools.dir}"           files="sql_header.sql"/>
+            <fileset dir="${dbInstall.dir}"    includes="99970.synchronize_columns_in_non-system_views.sql"/>
+            <fileset dir="${dbInstall.dir}"    includes="99980.set_default_values.sql"/>
+            <fileset dir="${dbInstall.dir}"    includes="99990.correct_ref_no.sql"/>
+            <filelist dir="${tools.dir}"           files="sql_commit.sql"/>
+        </concat>
+
+    </target>
+</project>
