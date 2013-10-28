@@ -44,4 +44,11 @@ INSERT INTO CNT_CODELIST_LINK_INFO(ID, REVISION, ENTITY_VERSION, DOMAIN_ID, REF_
 UPDATE CNT_NOTIFICATION_PROFILE SET INBOX_ENABLED = 1 WHERE IS_LATEST = 1;
 --CNT-11293 END---
 
+--CNT-11322 BEGIN----------------------------------------------
+UPDATE cnt_view_action
+SET action_params = action_params || '&upload=true&listener=com.core.cbx.ui.listener.ImportRawDataListener'
+WHERE action_name = 'importRawData'
+AND InStr(action_params, '&upload=true&listener=com.core.cbx.ui.listener.ImportRawDataListener') = 0;
+--CNT-11322 END----------------------------------------------
+
 COMMIT;   
