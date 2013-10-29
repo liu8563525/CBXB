@@ -486,6 +486,7 @@
             <filelist dir="${output.dir}/../dbscripts/SetupSqlForRoot/"       files="10100.init_trigger.sql"/>
             <filelist dir="${output.dir}/../dbscripts/SetupSqlForRoot/"       files="10130.root_ADMIN_INITIALIZED.sql"/>
             <filelist dir="${output.dir}/../dbscripts/SetupSqlForRoot/"       files="10140.init_role_ui_table.sql"/>
+            <filelist dir="${output.dir}/../dbscripts/SetupSqlForRoot/"       files="10150.others.sql"/>
             <filelist dir="${include.dir}/"            files="sql_commit.sql"/>
         </concat>
 
