@@ -472,6 +472,7 @@
         <concat destfile="${working.dir}/install/${jar-name}-${build-ver}-install-08-dml-init-root.sql" force="yes" fixlastline="yes">
             <filelist dir="${include.dir}/"            files="sql_header.sql"/>
             <filelist dir="${output.dir}/../dbscripts/SetupSqlForRoot/"       files="00005.root_create_domain_and_user.sql"/>
+            <filelist dir="${output.dir}/../dbscripts/SetupSqlForRoot/"       files="00010.root_DATA_LIST_TYPE.sql"/>
             <filelist dir="${output.dir}/../dbscripts/SetupSqlForRoot/"       files="00030.root_CODELIST.sql"/>
             <filelist dir="${output.dir}/../dbscripts/SetupSqlForRoot/"       files="00040.root_HCL.sql"/>
             <filelist dir="${output.dir}/../dbscripts/SetupSqlForRoot/"       files="00050.root_LOOKUPLIST.sql"/>
