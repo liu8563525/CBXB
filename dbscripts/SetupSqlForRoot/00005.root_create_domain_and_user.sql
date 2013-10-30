@@ -3,6 +3,7 @@
 WHENEVER SQLERROR EXIT sql.sqlcode ROLLBACK
 SET DEFINE OFF
 SET SERVEROUTPUT ON
+SET SERVEROUTPUT ON SIZE 1000000 
 
 DECLARE
   ---3. Define some temporary VARCHAR , such as v_domain_id, v_group_desc, etc.
