@@ -1,0 +1,1 @@
+update CNT_TRIGGER_LISTENER set action_id='receiveDocument' where action_id='sendDocument' and details='Vpo delivery doc' and domain_id='/';
