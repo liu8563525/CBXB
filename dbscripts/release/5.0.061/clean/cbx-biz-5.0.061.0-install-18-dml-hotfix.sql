@@ -49,3 +49,40 @@ END;
 /
 
 --CNT-11058 END---
+
+--CNT-11429 BEGIN---
+INSERT INTO CNT_DOMAIN_ATTRIBUTE(
+						REVISION,ENTITY_VERSION,ID,DOMAIN_ID,KEY,VALUE,CATEGORY,TYPE,DESCRIPTION,
+						HUB_DOMAIN_ID,IS_FOR_REFERENCE
+) 
+SELECT 
+						0,1,Sys_Guid(),'/','build.aclcache.timeout','10','System Settings',0,
+						'Defines the timeout limits of aclcache(unit: minute)','/',0 
+FROM DUAL 
+WHERE NOT EXISTS (
+      			SELECT 1 
+      			FROM CNT_DOMAIN_ATTRIBUTE 
+      			WHERE DOMAIN_ID = '/' 
+      			AND KEY = 'build.aclcache.timeout' 
+);
+
+INSERT INTO CNT_SCHEDULER (
+            ID, REVISION, ENTITY_VERSION, DOMAIN_ID, HUB_DOMAIN_ID, IS_FOR_REFERENCE,
+            CREATE_USER, UPDATE_USER, CREATED_ON, UPDATED_ON,
+            NAME, CLASS_NAME, STATUS,
+            LAST_START_ON, LAST_END_ON, LAST_RUN_STATUS, LAST_RUN_BY_NAME, LAST_RUN_BY_ADDR
+)
+SELECT
+           SYS_GUID(), 1, 1, '/' , '/' , 0, 'system', 'system@backend' , SYSDATE, SYSDATE,
+          'RefreshUserCacheHandler' ,
+          'com.core.cbx.task.handler.RefreshUserCacheHandler' ,
+          'inactive' , SYSDATE, SYSDATE, 'complete' , 'NIL' , 'NIL'
+FROM DUAL
+WHERE NOT EXISTS (
+          SELECT 1
+          FROM CNT_SCHEDULER
+          WHERE NAME = 'RefreshUserCacheHandler'
+          AND DOMAIN_ID = '/'
+);
+
+--CNT-11429 END---
