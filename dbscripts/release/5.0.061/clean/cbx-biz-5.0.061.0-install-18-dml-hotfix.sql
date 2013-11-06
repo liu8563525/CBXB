@@ -63,7 +63,7 @@ INSERT INTO CNT_DOMAIN_ATTRIBUTE(
 ) 
 SELECT 0, 1, Sys_Guid(), '/', 
     'build.aclcache.timeout', '10', 'System Settings', 0,
-	'Defines the timeout limits of aclcache(unit: minute)', '/', 0 
+		'Defines the timeout limits of aclcache(unit: minute)', '/', 0 
 FROM DUAL 
 WHERE NOT EXISTS (
     SELECT 1 
