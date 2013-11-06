@@ -1,4 +1,4 @@
-SET DEFINE OFF; 
+SET DEFINE OFF;
 
 -- PATCH SQL FOR EXTERNAL DOMAIN ACCESS ROOT DOMAIN
 ------create domain group
@@ -16,14 +16,16 @@ v_name VARCHAR2(100) := in_owner_domain_id || '_' || Upper(in_category);
 v_domain_group_id VARCHAR2(32) := rpad(v_name, 32, '0');
 BEGIN
 
-Insert into CNT_DOMAIN_GROUP (
+INSERT INTO CNT_DOMAIN_GROUP (
   ID, REVISION, ENTITY_VERSION, DOMAIN_ID, IS_FOR_REFERENCE,
   CREATE_USER, CREATED_ON, NAME, CATEGORY, DESCRIPTION, OWNER_DOMAIN_ID
 ) SELECT v_domain_group_id, 0, 1, in_domain_id, 0,
   'system', SYSDATE, v_name, in_category, in_desc, in_owner_domain_id
 FROM dual
 WHERE NOT EXISTS (
-  SELECT 1 FROM cnt_domain WHERE id = v_domain_group_id
+  SELECT 1 FROM CNT_DOMAIN_GROUP WHERE id = v_domain_group_id
+) AND NOT EXISTS (
+  SELECT 1 FROM CNT_DOMAIN_GROUP WHERE owner_domain_id = v_domain_group_id AND CATEGORY = in_category
 );
 
 EXCEPTION
@@ -45,6 +47,12 @@ BEGIN
 
 ---create customer domain group
 in_category:='vendors'; in_desc:='';
+SP_CREATE_DOMAIN_GROUP(in_domain_id, in_owner_domain_id, in_category, in_desc);
+in_category:='facts'; in_desc:='';
+SP_CREATE_DOMAIN_GROUP(in_domain_id, in_owner_domain_id, in_category, in_desc);
+in_category:='custs'; in_desc:='';
+SP_CREATE_DOMAIN_GROUP(in_domain_id, in_owner_domain_id, in_category, in_desc);
+in_category:='forwarders'; in_desc:='';
 SP_CREATE_DOMAIN_GROUP(in_domain_id, in_owner_domain_id, in_category, in_desc);
 
 END;
