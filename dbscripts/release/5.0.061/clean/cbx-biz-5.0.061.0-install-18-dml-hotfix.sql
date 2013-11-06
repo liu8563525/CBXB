@@ -73,16 +73,16 @@ INSERT INTO CNT_SCHEDULER (
             LAST_START_ON, LAST_END_ON, LAST_RUN_STATUS, LAST_RUN_BY_NAME, LAST_RUN_BY_ADDR
 )
 SELECT
-           SYS_GUID(), 1, 1, '/' , '/' , 0, 'system', 'system@backend' , SYSDATE, SYSDATE,
-          'RefreshUserCacheHandler' ,
-          'com.core.cbx.task.handler.RefreshUserCacheHandler' ,
-          'inactive' , SYSDATE, SYSDATE, 'complete' , 'NIL' , 'NIL'
+            SYS_GUID(), 1, 1, '/' , '/' , 0, 'system', 'system@backend' , SYSDATE, SYSDATE,
+          	'RefreshUserCacheHandler' ,
+          	'com.core.cbx.task.handler.RefreshUserCacheHandler' ,
+          	'inactive' , SYSDATE, SYSDATE, 'complete' , 'NIL' , 'NIL'
 FROM DUAL
 WHERE NOT EXISTS (
-          SELECT 1
-          FROM CNT_SCHEDULER
-          WHERE NAME = 'RefreshUserCacheHandler'
-          AND DOMAIN_ID = '/'
+          	SELECT 1
+          	FROM CNT_SCHEDULER
+          	WHERE NAME = 'RefreshUserCacheHandler'
+          	AND DOMAIN_ID = '/'
 );
 
 --CNT-11429 END---
