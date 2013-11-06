@@ -52,12 +52,12 @@ END;
 
 --CNT-11429 BEGIN---
 INSERT INTO CNT_DOMAIN_ATTRIBUTE(
-		REVISION, ENTITY_VERSION, ID, DOMAIN_ID, KEY, VALUE, CATEGORY, TYPE, DESCRIPTION,
-		HUB_DOMAIN_ID, IS_FOR_REFERENCE
+    REVISION, ENTITY_VERSION, ID, DOMAIN_ID, KEY, VALUE, CATEGORY, TYPE, DESCRIPTION,
+	HUB_DOMAIN_ID, IS_FOR_REFERENCE
 ) 
-SELECT 
-		0, 1, Sys_Guid(), '/', 'build.aclcache.timeout', '10', 'System Settings', 0,
-		'Defines the timeout limits of aclcache(unit: minute)', '/', 0 
+SELECT 0, 1, Sys_Guid(), '/', 
+    'build.aclcache.timeout', '10', 'System Settings', 0,
+	'Defines the timeout limits of aclcache(unit: minute)', '/', 0 
 FROM DUAL 
 WHERE NOT EXISTS (
     SELECT 1 
