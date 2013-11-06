@@ -5867,13 +5867,5 @@ END;
 
 --CNT-11058 END---
 
---CNT-11397 BEGIN--
-
-INSERT INTO CNT_DOMAIN_ATTRIBUTE (REVISION,ENTITY_VERSION,ID,DOMAIN_ID,KEY,VALUE,CATEGORY,TYPE,DESCRIPTION) 
-SELECT 0,1,Sys_Guid(),'/','vpo.export.templatepath','/home/cnt5/temp/expTmpl/',
-'Path',0,'Path to load vpo download template' FROM DUAL 
-WHERE NOT EXISTS (SELECT 1 FROM CNT_DOMAIN_ATTRIBUTE WHERE DOMAIN_ID = '/' AND KEY = 'vpo.export.templatepath' );
-
---CNT-11397 END--
 
 COMMIT;
