@@ -1,0 +1,30 @@
+
+-----------------------------Start for CNT-10170-----------------------------------------
+
+INSERT INTO CNT_COMMAND_HANDLER
+ (REVISION, ID, ENTITY_VERSION, DOMAIN_ID, COMMAND_TYPE, IMPLEMENTATION, PRIORITY, ENABLE, CREATE_USER, UPDATE_USER, CREATED_ON, UPDATED_ON, INTERNAL_SEQ_NO, HUB_DOMAIN_ID, IS_FOR_REFERENCE)
+SELECT  1, sys_guid(), 1, '/', 'SaveFollowedDoc', 'com.core.cbx.command.handler.SaveFollowedDocHandler', 1, 1, 'admin@/', 'admin@/', '', '', '', '/', 0 FROM DUAL WHERE NOT EXISTS (
+   SELECT 1 FROM CNT_COMMAND_HANDLER WHERE DOMAIN_ID = '/' AND COMMAND_TYPE = 'SaveFollowedDoc');
+
+INSERT INTO CNT_COMMAND_LSNT_HDLR
+ (ID, REVISION, ENTITY_VERSION, DOMAIN_ID, LISTENER_ID, HANDLER_ID, STATUS, LAST_HEARTBEAT, LAST_EXECUTED_ON, INTERNAL_SEQ_NO, HUB_DOMAIN_ID, IS_FOR_REFERENCE)
+SELECT  sys_guid(), 1, 1, 'backend', (SELECT ID FROM CNT_COMMAND_LISTENER WHERE DOMAIN_ID = 'backend' AND LISTENER_NAME = 'cbx5CommandListener'), (SELECT ID from CNT_COMMAND_HANDLER WHERE DOMAIN_ID = '/' AND COMMAND_TYPE = 'SaveFollowedDoc'), 1, '', '', '', 'backend', 0 FROM DUAL WHERE NOT EXISTS (
+   SELECT 1 FROM CNT_COMMAND_LSNT_HDLR WHERE HANDLER_ID = (SELECT ID from CNT_COMMAND_HANDLER WHERE DOMAIN_ID = '/' AND COMMAND_TYPE = 'SaveFollowedDoc') AND LISTENER_ID = (SELECT ID FROM CNT_COMMAND_LISTENER WHERE DOMAIN_ID = 'backend' AND LISTENER_NAME = 'cbx5CommandListener'));
+
+-----------------------------End for CNT-10170-------------------------------------------
+
+-- // BEG: CNT-9721
+DELETE FROM CNT_COMMAND_HANDLER WHERE DOMAIN_ID = '/' AND COMMAND_TYPE IN ('VqRejectToBuy', 'VqDiscardConfirmToBuy', 'VqQuoted', 'VqConfirmedToBuy');
+
+INSERT INTO CNT_COMMAND_HANDLER(ID, REVISION, ENTITY_VERSION, HUB_DOMAIN_ID, DOMAIN_ID, IS_FOR_REFERENCE, COMMAND_TYPE, IMPLEMENTATION, PRIORITY, ENABLE, CREATE_USER, UPDATE_USER, CREATED_ON, UPDATED_ON)
+VALUES(SYS_GUID(), 1, 1, '/', '/', 0, 'VqRejectToBuy', 'com.core.cbx.vq.command.handler.VqRejectOrDiscardConfirmToBuyHandler', 1, 1, 'admin@/', 'admin@/', systimestamp, systimestamp);
+
+INSERT INTO CNT_COMMAND_HANDLER(ID, REVISION, ENTITY_VERSION, HUB_DOMAIN_ID, DOMAIN_ID, IS_FOR_REFERENCE, COMMAND_TYPE, IMPLEMENTATION, PRIORITY, ENABLE, CREATE_USER, UPDATE_USER, CREATED_ON, UPDATED_ON)
+VALUES(SYS_GUID(), 1, 1, '/', '/', 0, 'VqDiscardConfirmToBuy', 'com.core.cbx.vq.command.handler.VqRejectOrDiscardConfirmToBuyHandler', 1, 1, 'admin@/', 'admin@/', systimestamp, systimestamp);
+
+INSERT INTO CNT_COMMAND_HANDLER(ID, REVISION, ENTITY_VERSION, HUB_DOMAIN_ID, DOMAIN_ID, IS_FOR_REFERENCE, COMMAND_TYPE, IMPLEMENTATION, PRIORITY, ENABLE, CREATE_USER, UPDATE_USER, CREATED_ON, UPDATED_ON)
+VALUES(SYS_GUID(), 1, 1, '/', '/', 0, 'VqQuoted', 'com.core.cbx.vq.command.handler.VqQuotedCommandHandler', 1, 1, 'admin@/', 'admin@/', systimestamp, systimestamp);
+
+INSERT INTO CNT_COMMAND_HANDLER(ID, REVISION, ENTITY_VERSION, HUB_DOMAIN_ID, DOMAIN_ID, IS_FOR_REFERENCE, COMMAND_TYPE, IMPLEMENTATION, PRIORITY, ENABLE, CREATE_USER, UPDATE_USER, CREATED_ON, UPDATED_ON)
+VALUES(SYS_GUID(), 1, 1, '/', '/', 0, 'VqConfirmedToBuy', 'com.core.cbx.vq.command.handler.VqConfirmedToBuyCommandHandler', 1, 1, 'admin@/', 'admin@/', systimestamp, systimestamp);
+-- // END: CNT-9721

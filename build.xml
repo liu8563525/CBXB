@@ -488,6 +488,8 @@
             <filelist dir="${output.dir}/../dbscripts/SetupSqlForRoot/"       files="10130.root_ADMIN_INITIALIZED.sql"/>
             <filelist dir="${output.dir}/../dbscripts/SetupSqlForRoot/"       files="10140.init_role_ui_table.sql"/>
             <filelist dir="${output.dir}/../dbscripts/SetupSqlForRoot/"       files="10150.init_others.sql"/>
+            <filelist dir="${output.dir}/../dbscripts/SetupSqlForRoot/"       files="10160.init_external_domain.sql"/>
+            <filelist dir="${output.dir}/../dbscripts/SetupSqlForRoot/"       files="10170.init_command_listener.sql"/>
             <filelist dir="${output.dir}/../dbscripts/SetupSqlForRoot/"       files="99980.set_default_values.sql"/>
             <filelist dir="${include.dir}/"            files="sql_commit.sql"/>
         </concat>

@@ -669,3 +669,13 @@ FROM CNT_NOTIFICATION_PROFILE NOTP;
     mpi.cbm,
     DECODE (mpi.is_set, 0, '', 1, 'Set')
   FROM cnt_mpo_item mpi;
+
+-- //BEG: CNT-11484
+CREATE OR REPLACE FORCE VIEW CNT_V_ITEM_CUSTOMER_MAPPED ("ID", "REVISION", "ENTITY_VERSION", "DOMAIN_ID", "ITEM_ID", "IS_DEFAULT", "CUST_ID", "MARKET", "CHANNEL", "CUST_ITEM_NO", "COMMENTS", "INTERNAL_SEQ_NO", "REF_NO", "HUB_DOMAIN_ID", "IS_FOR_REFERENCE", "MARKET_NAME", "CHANNEL_NAME") AS 
+  SELECT cic.ID, cic.revision, cic.entity_version, cic.domain_id,
+          cic.item_id, DECODE (cic.is_default, 1, 'Yes', 0, 'No', NULL, 'No'),
+          cic.cust_id, cic.market, cic.channel, cic.cust_item_no,
+          cic.comments, cic.internal_seq_no, CIC.REF_NO,
+          cic.HUB_DOMAIN_ID, cic.IS_FOR_REFERENCE, cic.MARKET_NAME, cic.CHANNEL_NAME
+     FROM cnt_item_cust cic;
+-- //ENG: CNT-11484
