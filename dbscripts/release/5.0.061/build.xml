@@ -388,7 +388,6 @@
         <concat destfile="${working.dir}/cbx-biz-${build-ver}-update-03-ddl-base.default.sql"  force="yes" fixlastline="yes">
             <filelist dir="${tools.dir}"           files="sql_header.sql"/>
             <fileset dir="${concate.dir}"     includes="DDL_*.sql,DDL_*.SQL" /> 
-            <filelist dir="${dbInstall.dir}"           files="10140.init_role_ui_table.sql"/>
             <filelist dir="${tools.dir}"           files="sql_commit.sql"/>
         </concat>
         
@@ -427,6 +426,7 @@
             <fileset dir="${dbInstall.dir}"    includes="99970.synchronize_columns_in_non-system_views.sql"/>
             <fileset dir="${dbInstall.dir}"    includes="99980.set_default_values.sql"/>
             <fileset dir="${dbInstall.dir}"    includes="99990.correct_ref_no.sql"/>
+            <filelist dir="${dbInstall.dir}"       files="10140.init_role_ui_table.sql"/>
             <filelist dir="${tools.dir}"           files="sql_commit.sql"/>
         </concat>
 
