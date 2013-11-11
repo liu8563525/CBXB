@@ -5,7 +5,7 @@ DELETE CNT_DOMAIN_GROUP_CACHED_RULES;
 
 DELETE FROM CNT_SERIALIZED_ENTITY WHERE TARGET_ENTITY IN ('UserCacheData', 'ChecksumCacheData', 'View', 'CodelistBook', 'Hcl', 
 	'AccessObject', 'DefaultProfile', 'HclType', 'DataListType', 'ValidationProfile', 'QueryCountCache', 'FormatProfile', 'AuditConfig', 'NaviModule', 'Condition', 'HistoryDef', 'DataMappingRule', 
-	'DataInheritanceProfile','DomainMasterMapping');
+	'DataInheritanceProfile','DomainMasterMapping', 'User');
 
 DELETE FROM CNT_CHECKSUM_CACHE_RULE;
 DELETE FROM CNT_CHECKSUM_CACHE_HCL_NODE;
