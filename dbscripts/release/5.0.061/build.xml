@@ -4,7 +4,7 @@
     <property file="settings/generator.properties"/>
 
     <property name="jar-name" value="cbx-biz"/>
-    <property name="build-ver" value="5.0.060.0"/>
+    <property name="build-ver" value="5.0.061.0"/>
 
     <property name="builder-used" value="cbx-builder-5.0.005.0"/>
     <property name="common-used" value="cbx-common-5.0.003.0"/>
